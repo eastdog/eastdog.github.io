@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width initial-scale=1">
+
+<title>How to create post summary</title>
+<meta name="description" content="">
+<meta name="keywords" content="tech, eastdog">
+
+<link rel="icon" href="/eastdog/images/favicon.ico">
+<link rel="stylesheet" href="/eastdog/css/main.css">
+<link rel="canonical" href="/howto/2015/01/18/how-to-create-post-summary.html">
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/zfeed.xml" />
+
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+
+  <div class="wrapper">
+
+    <h1 class="site-title"><a href="/eastdog/">Eastdog</a></h1>
+    <h3 class="site-meta">Eastdog is not dog存档</h3>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+        
+        <a class="page-link" href="/eastdog/">Home</a>
+        
+        
+        
+        <a class="page-link" href="/eastdog/about/">About</a>
+        
+        
+        
+        <a class="page-link" href="/eastdog/archives/">Archives</a>
+        
+        
+        
+        <a class="page-link" href="/eastdog/categories/">Categories</a>
+        
+        
+        
+        <a class="page-link" href="/eastdog/tags/">Tags</a>
+        
+        
+        
+        <a class="page-link" href="/eastdog/guestbook/">Guestbook</a>
+        
+        
+        
+        <a class="page-link" href="/eastdog/feed.xml">Subscribe</a>
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    
+
+  <div class="page-content col-sm-8">
+    <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">How to create post summary</h1>
+    <p class="post-meta">
+    Posted in
+    
+    <a href="/eastdog/categories/#howto">howto</a>&nbsp;
+     
+    
+    and tagged
+    
+    <a href="/eastdog/tags/#summary" title="summary">summary </a>
+    
+    
+    on Jan 18, 2015
+    </p>
+  </header>
+
+  <article class="post-content">
+    <ul id="markdown-toc">
+  <li><a href="#how-to-only-show-a-part-of-posts" id="markdown-toc-how-to-only-show-a-part-of-posts">How to only show a part of posts?</a></li>
+  <li><a href="#how-to-create-a-read-more-button-for-a-post" id="markdown-toc-how-to-create-a-read-more-button-for-a-post">How to create a read more button for a post?</a></li>
+  <li><a href="#the-example-of-post-summary-at-gisthttpsgistgithubcomyulijia2f865b78a28bfe9e0a81" id="markdown-toc-the-example-of-post-summary-at-gisthttpsgistgithubcomyulijia2f865b78a28bfe9e0a81">The example of post summary at <a href="https://gist.github.com/yulijia/2f865b78a28bfe9e0a81">Gist</a>.</a></li>
+  <li><a href="#you-can-clone-the-readmore-version-by-using" id="markdown-toc-you-can-clone-the-readmore-version-by-using">you can clone the readmore version by using</a></li>
+</ul>
+
+<p>We can make a summary of post, and show it in the home page.</p>
+
+<h3 id="how-to-only-show-a-part-of-posts">How to only show a part of posts?</h3>
+
+<p><strong>Method 1.</strong> In <a href="https://github.com/yulijia/freshman21/blob/master/index.html">index.html</a> file, set <code> \{\{ post.content | strip_html | truncatewords: 50 \}\}</code> , produces a more consistent excerpt. It gets the first 50 words and strips any formatting.</p>
+
+<p>This method can automatically create a summary of article. However if the article begin with <q>code</q> or <q>markdown tags</q>, you will find the article css style can not shown on the home page.</p>
+
+<p><strong>Method 2.</strong> In <a href="https://github.com/yulijia/freshman21/blob/master/index.html">index.html</a> file, using <code>\{\{ post.summary \}\}</code> to insted of <code>\{\{ post.content \}\}</code>, produces a summary of post. You need add summary in each <q>post</q> file, <a href="https://gist.github.com/yulijia/2f865b78a28bfe9e0a81#file-a-article-post-with-summary">example</a></p>
+
+<p>Then you will find all articles summary in the home page.</p>
+
+<h3 id="how-to-create-a-read-more-button-for-a-post">How to create a read more button for a post?</h3>
+
+<p>Basically, freshman21 doesn’t support “read more” button.</p>
+
+<p>To create a page link(button) is very easy.</p>
+
+<p>Just add</p>
+
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;\{\{ post.url | prepend: site.baseurl \}\}&quot;</span><span class="nt">&gt;</span>read more<span class="nt">&lt;/a&gt;&lt;/p&gt;</span></code></pre></div>
+
+<p>after <code>\{\{post.summary\}\}</code></p>
+
+<h2 id="the-example-of-post-summary-at-gisthttpsgistgithubcomyulijia2f865b78a28bfe9e0a81">The example of post summary at <a href="https://gist.github.com/yulijia/2f865b78a28bfe9e0a81">Gist</a>.</h2>
+
+<hr />
+
+<h2 id="you-can-clone-the-readmore-version-by-using">you can clone the readmore version by using</h2>
+
+<p><code>git clone --branch readmore https://github.com/yulijia/freshman21.git</code></p>
+
+  </article>
+  <hr />
+</div>
+
+
+<section class="pager">
+  <ul>
+    
+    <li class="previous"><a href="/eastdog/articles/howto/2014/12/19/how-to-set-the-config-file.html" title="How to set the config.yml file">&larr; Older</a></li>
+    
+    
+    <li class="disabled"><a>Newer &rarr;</a>
+    
+  </ul>
+</section>
+
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+
+  var disqus_developer = 1;
+
+var disqus_shortname ='eastdog';
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+    <section class="pager">
+  
+  
+</section>
+
+
+  </div>
+  <div class="col-sm-2">
+<div class="sidebar-module about">
+  <h4>About Me</h4>
+  <img title="Victor Zhou" src="https://i.imgur.com/Mdc4szJl.jpg" alt="Victor Zhou"/>
+  <span>A blog, tech relevant, hope so.</span>
+  <br />
+
+  
+
+  You can contact me via:
+
+  
+  <a href="mailto:yudongzhou@yeah.net" title="mailto: yudongzhou@yeah.net">Email</a> /
+  
+  
+  <a href="https://github.com/eastdog" title="GithubID: eastdog">Github</a> /
+  
+  
+  <a href="https://twitter.com/" title="TwitterID: ">Twitter</a>
+  
+
+  
+
+</div>
+
+<div class="sidebar-module"> <!-- sidebar-module-inset">-->
+  <h4>Copyright Notice</h4>
+
+  
+
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">
+    <img src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png">
+  </a>
+  <br />
+  <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/s">Attribution-NonCommercial-ShareAlike</a>
+
+  
+
+</div>
+
+
+<div class="sidebar-module">
+  <h4>Recent Posts</h4>
+  
+  <li>
+  <a href="/eastdog//howto/2015/01/18/how-to-create-post-summary.html" title="How to create post summary" rel="bookmark">How to create post summary</a>
+  </li>
+  
+  <li>
+  <a href="/eastdog//articles/howto/2014/12/19/how-to-set-the-config-file.html" title="How to set the config.yml file" rel="bookmark">How to set the config.yml file</a>
+  </li>
+  
+  <li>
+  <a href="/eastdog//articles/howto/2014/12/19/freshman21-structure.html" title="Theme structure" rel="bookmark">Theme structure</a>
+  </li>
+  
+  <li>
+  <a href="/eastdog//articles/2014/12/18/how-to-install.html" title="How to install this theme" rel="bookmark">How to install this theme</a>
+  </li>
+  
+  <li>
+  <a href="/eastdog//articles/2014/12/13/simple-post.html" title="Sample Post" rel="bookmark">Sample Post</a>
+  </li>
+  
+</div>
+
+
+<div class="sidebar-module">
+  <h4>Categories</h4>
+  
+  <li><a href="/eastdog/categories/#uncategorized" title="uncategorized" rel="1">uncategorized (1)</a></li>
+  
+  <li><a href="/eastdog/categories/#articles" title="articles" rel="6">articles (6)</a></li>
+  
+  <li><a href="/eastdog/categories/#howto" title="howto" rel="3">howto (3)</a></li>
+  
+</div>
+
+
+<div class="sidebar-module">
+  <h4>Tags</h4>
+  
+    <a href="/eastdog/tags/#HelloWorld" title="HelloWorld" rel="1">HelloWorld</a> &nbsp;
+  
+    <a href="/eastdog/tags/#Père David's deer" title="Père David's deer" rel="1">Père David's deer</a> &nbsp;
+  
+    <a href="/eastdog/tags/#milu" title="milu" rel="1">milu</a> &nbsp;
+  
+    <a href="/eastdog/tags/#Elaphurus davidianus" title="Elaphurus davidianus" rel="1">Elaphurus davidianus</a> &nbsp;
+  
+    <a href="/eastdog/tags/#reindeer" title="reindeer" rel="1">reindeer</a> &nbsp;
+  
+    <a href="/eastdog/tags/#sample-post" title="sample-post" rel="3">sample-post</a> &nbsp;
+  
+    <a href="/eastdog/tags/#structure" title="structure" rel="1">structure</a> &nbsp;
+  
+    <a href="/eastdog/tags/#configure" title="configure" rel="1">configure</a> &nbsp;
+  
+    <a href="/eastdog/tags/#summary" title="summary" rel="1">summary</a> &nbsp;
+  
+</div>
+
+
+<div class="sidebar-module">
+  <h4>Blogroll</h4>
+  
+  <li><a href="http://yulijia.net/freshman21" title="Another Jekyll blog theme">Freshman21</a></li>
+  
+  <li><a href="http://yulijia.net/" title="Lijia Yu's website">author's website</a></li>
+  
+</div>
+
+
+<div class="sidebar-module">
+  <h4>Archives</h4>
+
+  
+  
+  
+  
+  
+  <li id="2015" > <a href="/eastdog/archives/#2015">2015</a></li>
+  
+  
+  
+  
+  
+  
+  
+  <li id="2014" > <a href="/eastdog/archives/#2014">2014</a></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <li id="2013" > <a href="/eastdog/archives/#2013">2013</a></li>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <li id="2011" > <a href="/eastdog/archives/#2011">2011</a></li>
+  
+  
+
+</div>
+
+
+</div>
+
+
+
+  
+
+  <footer class="site-footer">
+
+  <p>Copyright &copy; <a href="/eastdog/">Eastdog</a></p>
+  <p>Powered by <a href="https://github.com/jekyll/jekyll">Jekyll</a> 
+  on 
+  
+  <a href="https://github.com/">Github</a>
+  
+  | Theme <a href="https://github.com/yulijia/freshman21/">Freshman21</a> Design by <a href="http://yulijia.net">Lijia Yu</a>  
+
+</footer>
+
+
+</div>
+
+</body>
+
+</html>
