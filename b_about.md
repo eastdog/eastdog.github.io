@@ -6,22 +6,35 @@ permalink: /about/
 ---
 
 
-### Freshman21 is a Jekyll theme.
+### 个人技术博客
 
-A tribute to Twenty Twelve and Twenty eleven.
+苯丙酮尿症大学本科毕业，欧洲两年多读自然语言处理，目前人在魔都。
 
-I like wordpress's theme Twenty Twelve and Twenty eleven very much. 
-So I called my Jekyll theme Freshman21 (Freshman <q>twenty-first</q> , it means twenty-first century, not twenty-one), this theme is based on my former theme [Freshman](https://github.com/yulijia/freshman/).
+本科论文关于知识图谱，硕士做的情感分析。现在在做一些知识图谱、语义分析和文本处理的工作。
 
-Freshman21 have two main page format, one is [single column](http://yulijia.net/en/  "see demo"), the other is two columns. For more details, please see the articles on the site.
+曾在创业公司，现在一家VC，嗯，我们是一家技术/数据驱动的VC。
 
-<cite>Proudly enjoy using Freshman21 theme.</cite> <code>;)</code>
 
-<img title="麋鹿" src="https://i.imgur.com/Mdc4szJl.jpg" alt="麋鹿" width="580" height="668" />
+网上一些七零八落的我：
 
-#### Hi, the picture you have seen in the sample-page is a Père David's deer photoed by my friend at Beijing Milu Park, China.
+* https://about.me/eastdog
+* http://www.zhihu.com/people/eastdog
+* cn.linkedin.com/in/ydzhou/en
 
-Milu(麋鹿) is the chinese name of Père David's deer.
+有事儿请[邮件联系](yvtungchow@gmail.com)
+
+
+### Personal Tech Blog
+
+Hold a master degree in Computational Linguistics, living in Shanghai.
+
+Working on subjects such as Knowledge Graph, Computational Semantics and Text Analysis.
+
+In a startsup once, now in a Venture Capital.
+
+Check my [LinkedIn](cn.linkedin.com/in/ydzhou/en) or send me an [email](yvtungchow@gmail.com)
+
+
 
 
 
