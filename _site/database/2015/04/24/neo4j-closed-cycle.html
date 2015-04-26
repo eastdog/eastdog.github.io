@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width initial-scale=1">
+
+<title>使用neo4j进行交易闭环分析</title>
+<meta name="description" content="目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。">
+<meta name="keywords" content="nlp, tech">
+
+<link rel="icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="canonical" href="/database/2015/04/24/neo4j-closed-cycle.html">
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/zfeed.xml" />
+
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+
+  <div class="wrapper">
+
+    <h1 class="site-title"><a href="/">Eastdog</a></h1>
+    <h3 class="site-meta">Eastdog is not dog</h3>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+        
+        <a class="page-link" href="/">Home</a>
+        
+        
+        
+        <a class="page-link" href="/about/">About</a>
+        
+        
+        
+        <a class="page-link" href="/archives/">Archives</a>
+        
+        
+        
+        <a class="page-link" href="/categories/">Categories</a>
+        
+        
+        
+        <a class="page-link" href="/tags/">Tags</a>
+        
+        
+        
+        <a class="page-link" href="/guestbook/">Guestbook</a>
+        
+        
+        
+        <a class="page-link" href="/feed.xml">Subscribe</a>
+        
+        
+        
+        
+        
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+  
+
+  <div class="page-content">
+    <div class="wrapper">
+      <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">使用neo4j进行交易闭环分析</h1>
+    <p class="post-meta">
+    Posted in
+    
+    <a href="/categories/#database">database</a>&nbsp;
+     
+    
+    and tagged
+    
+    <a href="/tags/#neo4j" title="neo4j">neo4j </a>, 
+    
+    <a href="/tags/#graphdb" title="graphdb">graphdb </a>
+    
+    
+    on Apr 24, 2015
+    </p>
+  </header>
+
+  <article class="post-content">
+    <p>目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。</p>
+
+<p>刚好最近在看neo4j，想试一下graph analysis，数据提供者也觉得分析一下不同公司之间交易闭环也蛮有趣的。试了一下，用neo4j和python的组合来完成这事儿还是非常容易的。</p>
+
+<h1 id="section">问题定义与分析</h1>
+<p>数据是不同商家(我称为dealer)之间的交易(称为transaction)，经过数据清洗和简化，每条数据的格式可以认为是这样：</p>
+
+<pre><code>dealerA, productA, dealerB, amount
+</code></pre>
+
+<p>表示dealerA将数额为amount的productA卖给了dealerB。数据集中每个dealer即可能是卖家，也可能是买家。要解决的问题是，给定一定量这样的数据，发现交易闭环，即从一个dealer出发，通过不同的交易和其他dealer，最后还有人将产品卖回给最开始的dealer。</p>
+
+<p>可以把这个问题抽象成一个有向图，dealer是图的节点，transaction是图的边，从卖家指向买家，权重为交易额。要解决的问题即是，给定一个图G(V,E)，找出所有的闭合子图。</p>
+
+<h1 id="neo4j">neo4j实现</h1>
+<p>这个问题可以全程使用neo4j实现，不过方便起见，还是用了python做胶水。</p>
+
+<ol>
+  <li>首先，根据输入数据构造交易图谱，得到一个neo4j的数据库。</li>
+  <li>第二步，使用neo4j的查询语言Cypher进行封闭子图查询。</li>
+  <li>最后判断重复结果，输出。</li>
+</ol>
+
+<p>构造图的过程中要注意的问题就是不能重复创建节点。Cypher中得merge/create unique语法其实不是特别方便，两者的语义都不是我想要实现的“创建关系r(x<sub>1</sub>, x<sub>2</sub>)及节点x<sub>1</sub>,x<sub>2</sub>，如果x<sub>1</sub>/x<sub>2</sub>存在则不重复创建”，只好分别对x<sub>1</sub>，x<sub>2</sub>和r进行merge操作。</p>
+
+<p>构造的代码如下，商家定义为<code>Dealer</code>类，交易关系命名为<code>s2</code>，函数的输入<code>connection</code>为一个本地的neo4j数据库连接；输入文件格式如前述，第一列和第三列为卖方和买房的id。</p>
+
+<pre><code>def create_graph(inpath, connection):
+
+    with codecs.open(inpath, encoding='utf-8') as f:
+        cursor = connection.cursor()
+        for line in f:
+            entries = line.split('\t')
+            a, b = entries[0].strip(), entries[2].strip()
+            cursor.execute("MERGE (x:Dealer {id:{0}}) "
+                           "MERGE (y:Dealer {id:{1}}) "
+                           "MERGE (x) -[:s2]-&gt; (y)", a, b)
+            connection.commit()
+</code></pre>
+
+<p>最终输出的时候要判断找到的子图是不是重复的，由于起点不同，所以查询结果可能有重复。在这里我定义了一个闭合子图类，定义了它的哈希方法和判断相等的方法。还有一个需要注意的地方是，设定一个节点做起始节点，将找到的两个子图结果拼接起来仍是一个合法的结果，例如找到两个结果<code>a--b--a</code>和<code>a--c--a</code>，拼接起来的结果<code>a--b--a--c--a</code>仍是一个合法的图查询结果，但是不是我们想要的，所以还需要过滤掉这种倒8字型的子图。这个<code>Circle</code>类的代码如下。</p>
+
+<pre><code>class Circle(object):
+
+    def __init__(self, nodes):
+
+        self.valid = True
+        if nodes.count(nodes[0]) &gt; 2: self.valid = False
+        self.nodes = nodes[1:]
+
+    def __hash__(self):
+
+        return (frozenset(self.nodes).__hash__(), len(self.nodes)).__hash__()
+
+    def __eq__(self, other):
+
+        return self.__hash__() == other.__hash__() if isinstance(other, Circle) else False
+
+    def toString(self):
+
+        return '-&gt;'.join(self.nodes)
+</code></pre>
+
+<p>查询并将结果写入文件：</p>
+
+<pre><code>def search4circle(outpath, connection):
+
+    cursor = connection.cursor()
+    circles = []
+    with codecs.open(outpath, 'w', 'utf-8') as fo:
+        for p in cursor.execute("START n=node(*) "
+                                "MATCH p=n-[:s2*2..10]-&gt;n "
+                                "RETURN nodes(p)"):
+            circles.append(map(lambda x: x.get('id'), p[0]))
+        fo.write('\n'.join(map(lambda x: x.toString(),
+                               filter(lambda x: x.valid,
+                                      set(map(lambda x: Circle(x), circles))))))
+    connection.commit()
+</code></pre>
+
+<p>我指定的子图边的数量是2-10个，交易系统更复杂、闭环长度可能更长的时候应该适当增加上界。我的数据只是toy级别的，几万条交易数据而已，跑下来不到一分钟，不算很短了。具体原因我没有深究，我猜测是查询之前建立索引比较耽误工夫，因为不同边长度的结果几乎是一起出来的。如果是建索引比较花时间，那就不太会影响线上使用的速度。</p>
+
+<p>总体感觉上，Cypher作为查询语言不算难用，相较于SPARQL，更类似SQL。性能上，neo4j是跑在jvm上的，应该优化不算深，也有不少人诟病neo4j的速度，不过可能是我的数据量小，性能瓶颈不是很明显，至少不比Jena之类的框架差。</p>
+
+<p>一段时间内应该不会做太多知识图谱相关的工作了，所以之前更深入研究graphdb的计划可能就要放慢节奏了，更多地会在个人兴趣项目上对相关内容进行一些尝试。</p>
+
+  </article>
+  <hr />
+</div>
+
+
+<section class="pager">
+  <ul>
+    
+    <li class="previous"><a href="/reading/2015/03/27/reading-201503.html" title="2015.03读书笔记">&larr; Older</a></li>
+    
+    
+    <li class="disabled"><a>Newer &rarr;</a>
+    
+  </ul>
+</section>
+
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+
+  var disqus_developer = 1;
+
+var disqus_shortname ='eastdog';
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+    </div>
+  </div>
+  <section class="pager">
+  
+  
+</section>
+
+
+
+  
+
+  <footer class="site-footer">
+
+  <p>Copyright &copy; <a href="/">Eastdog</a></p>
+  <p>Powered by <a href="https://github.com/jekyll/jekyll">Jekyll</a> 
+  on 
+  
+  <a href="https://github.com/">Github</a>
+  
+  | Theme <a href="https://github.com/yulijia/freshman21/">Freshman21</a> Design by <a href="http://yulijia.net">Lijia Yu</a>  
+
+</footer>
+
+
+</div>
+
+</body>
+
+</html>

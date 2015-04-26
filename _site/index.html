@@ -31,7 +31,7 @@
   <div class="wrapper">
 
     <h1 class="site-title"><a href="/">Eastdog</a></h1>
-    <h3 class="site-meta">Eastdog is not dog目录</h3>
+    <h3 class="site-meta">Eastdog is not dog</h3>
 
     <nav class="site-nav">
       <a href="#" class="menu-icon">
@@ -75,8 +75,6 @@
         
         
         
-        
-        
       </div>
     </nav>
 
@@ -96,302 +94,111 @@
   
     <header class="post-header">
       <h1 class="post-title">
-        <a class="post-link" href="/howto/2015/01/18/how-to-create-post-summary.html">How to create post summary</a>
+        <a class="post-link" href="/database/2015/04/24/neo4j-closed-cycle.html">使用neo4j进行交易闭环分析</a>
       </h1>
       <p class="post-meta">
       Posted in
       
-      <a href="/categories/#howto">howto</a>&nbsp;
+      <a href="/categories/#database">database</a>&nbsp;
       
       
       and tagged
       
-      <a href="/tags/#summary" title="summary">summary </a>
+      <a href="/tags/#neo4j" title="neo4j">neo4j </a>, 
+      
+      <a href="/tags/#graphdb" title="graphdb">graphdb </a>
       
       
-      on Jan 18, 2015
+      on Apr 24, 2015
       </p>
     </header>
 
     <article class="post-content">
-      <ul id="markdown-toc">
-  <li><a href="#how-to-only-show-a-part-of-posts" id="markdown-toc-how-to-only-show-a-part-of-posts">How to only show a part of posts?</a></li>
-  <li><a href="#how-to-create-a-read-more-button-for-a-post" id="markdown-toc-how-to-create-a-read-more-button-for-a-post">How to create a read more button for a post?</a></li>
-  <li><a href="#the-example-of-post-summary-at-gisthttpsgistgithubcomyulijia2f865b78a28bfe9e0a81" id="markdown-toc-the-example-of-post-summary-at-gisthttpsgistgithubcomyulijia2f865b78a28bfe9e0a81">The example of post summary at <a href="https://gist.github.com/yulijia/2f865b78a28bfe9e0a81">Gist</a>.</a></li>
-  <li><a href="#you-can-clone-the-readmore-version-by-using" id="markdown-toc-you-can-clone-the-readmore-version-by-using">you can clone the readmore version by using</a></li>
-</ul>
+      <p>目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。</p>
 
-<p>We can make a summary of post, and show it in the home page.</p>
+<p>刚好最近在看neo4j，想试一下graph analysis，数据提供者也觉得分析一下不同公司之间交易闭环也蛮有趣的。试了一下，用neo4j和python的组合来完成这事儿还是非常容易的。</p>
 
-<h3 id="how-to-only-show-a-part-of-posts">How to only show a part of posts?</h3>
+<h1 id="section">问题定义与分析</h1>
+<p>数据是不同商家(我称为dealer)之间的交易(称为transaction)，经过数据清洗和简化，每条数据的格式可以认为是这样：</p>
 
-<p><strong>Method 1.</strong> In <a href="https://github.com/yulijia/freshman21/blob/master/index.html">index.html</a> file, set <code> \{\{ post.content | strip_html | truncatewords: 50 \}\}</code> , produces a more consistent excerpt. It gets the first 50 words and strips any formatting.</p>
+<pre><code>dealerA, productA, dealerB, amount
+</code></pre>
 
-<p>This method can automatically create a summary of article. However if the article begin with <q>code</q> or <q>markdown tags</q>, you will find the article css style can not shown on the home page.</p>
+<p>表示dealerA将数额为amount的productA卖给了dealerB。数据集中每个dealer即可能是卖家，也可能是买家。要解决的问题是，给定一定量这样的数据，发现交易闭环，即从一个dealer出发，通过不同的交易和其他dealer，最后还有人将产品卖回给最开始的dealer。</p>
 
-<p><strong>Method 2.</strong> In <a href="https://github.com/yulijia/freshman21/blob/master/index.html">index.html</a> file, using <code>\{\{ post.summary \}\}</code> to insted of <code>\{\{ post.content \}\}</code>, produces a summary of post. You need add summary in each <q>post</q> file, <a href="https://gist.github.com/yulijia/2f865b78a28bfe9e0a81#file-a-article-post-with-summary">example</a></p>
+<p>可以把这个问题抽象成一个有向图，dealer是图的节点，transaction是图的边，从卖家指向买家，权重为交易额。要解决的问题即是，给定一个图G(V,E)，找出所有的闭合子图。</p>
 
-<p>Then you will find all articles summary in the home page.</p>
-
-<h3 id="how-to-create-a-read-more-button-for-a-post">How to create a read more button for a post?</h3>
-
-<p>Basically, freshman21 doesn’t support “read more” button.</p>
-
-<p>To create a page link(button) is very easy.</p>
-
-<p>Just add</p>
-
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;\{\{ post.url | prepend: site.baseurl \}\}&quot;</span><span class="nt">&gt;</span>read more<span class="nt">&lt;/a&gt;&lt;/p&gt;</span></code></pre></div>
-
-<p>after <code>\{\{post.summary\}\}</code></p>
-
-<h2 id="the-example-of-post-summary-at-gisthttpsgistgithubcomyulijia2f865b78a28bfe9e0a81">The example of post summary at <a href="https://gist.github.com/yulijia/2f865b78a28bfe9e0a81">Gist</a>.</h2>
-
-<hr />
-
-<h2 id="you-can-clone-the-readmore-version-by-using">you can clone the readmore version by using</h2>
-
-<p><code>git clone --branch readmore https://github.com/yulijia/freshman21.git</code></p>
-
-    </article> <hr />
-    
-    
-  
-    <header class="post-header">
-      <h1 class="post-title">
-        <a class="post-link" href="/articles/howto/2014/12/19/how-to-set-the-config-file.html">How to set the config.yml file</a>
-      </h1>
-      <p class="post-meta">
-      Posted in
-      
-      <a href="/categories/#articles">articles</a>&nbsp;
-      
-      <a href="/categories/#howto">howto</a>&nbsp;
-      
-      
-      and tagged
-      
-      <a href="/tags/#configure" title="configure">configure </a>
-      
-      
-      on Dec 19, 2014
-      </p>
-    </header>
-
-    <article class="post-content">
-      <p>The <a href="https://github.com/yulijia/freshman21/blob/master/_config.yml">config.yml file</a> in the Freshman21 theme includes five parts.</p>
-
-<p><strong>First part</strong> is the site info.</p>
-
-<div class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Freshman21</span> <span class="c1"># blog title</span>
-<span class="l-Scalar-Plain">tagline</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Another Jekyll theme, Freshman twenty-first</span> <span class="c1"># blog sub-titile</span>
-<span class="l-Scalar-Plain">author</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Lijia YU</span> <span class="c1"># author name</span>
-<span class="l-Scalar-Plain">email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">yu@lijiayu.net</span> <span class="c1"># author email</span>
-<span class="l-Scalar-Plain">description</span><span class="p-Indicator">:</span> <span class="s">&quot;Freshman21</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">Jekyll</span><span class="nv"> </span><span class="s">blog</span><span class="nv"> </span><span class="s">theme.&quot;</span> <span class="c1"># You can edit this line in _config.yml. It will appear in your document head meta and in </span>
-<span class="l-Scalar-Plain">your feed.xml site description</span>
-<span class="l-Scalar-Plain">keywords</span><span class="p-Indicator">:</span> <span class="s">&quot;Jekyll,</span><span class="nv"> </span><span class="s">theme,</span><span class="nv"> </span><span class="s">Freshman21&quot;</span> <span class="c1"># html meta keywords</span>
-<span class="l-Scalar-Plain">baseurl</span><span class="p-Indicator">:</span> <span class="s">&quot;/freshman21&quot;</span> <span class="c1"># the subpath of your site, e.g. /blog</span>
-<span class="l-Scalar-Plain">url</span><span class="p-Indicator">:</span> <span class="s">&quot;http://yulijia.net/freshman21&quot;</span> <span class="c1"># the base hostname &amp; protocol for your site</span></code></pre></div>
-
-<p><strong>Part 2</strong>, Personal info and site tools info, twitter, github, aboutme and aboutme_photo only appears on the sidebar aboutme-box, you can <q>Hide</q> in two ways <sup><a href="#[1]">[1]</a></sup>:</p>
-
-<div class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="l-Scalar-Plain">twitter_username</span><span class="p-Indicator">:</span> <span class="c1">#your twitter handle  </span>
-<span class="l-Scalar-Plain">github_username</span><span class="p-Indicator">:</span>  <span class="c1">#your github account</span>
-<span class="l-Scalar-Plain">disqus_shortname</span><span class="p-Indicator">:</span> <span class="c1">#disqus shortname</span>
-<span class="l-Scalar-Plain">favicon</span><span class="p-Indicator">:</span>     <span class="s">&quot;images/favicon.ico&quot;</span>
-<span class="l-Scalar-Plain">aboutme</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Hi, this is Lijia Yu. I made the Freshman21 theme. Please enjoy it.</span> <span class="c1"># these are shown on aboutme-box(sidebar).</span>
-<span class="l-Scalar-Plain">aboutme_photo</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://i.imgur.com/15BT1.jpg</span> <span class="c1"># your personal photo.</span></code></pre></div>
-
-<p><strong>Part3</strong>, Site setting:</p>
-
-<div class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="l-Scalar-Plain">ShowContactInfo</span><span class="p-Indicator">:</span> <span class="s">&quot;True&quot;</span> <span class="c1"># Personal Info (twitter,github,email) can be seen on aboutme-sidebar, those info only shown where ShowContactInfo == True</span>
-<span class="l-Scalar-Plain">default_column</span><span class="p-Indicator">:</span> <span class="s">&quot;two&quot;</span> <span class="c1"># blog style: two columns, if default_column != &quot;two&quot;, you will see a one column blog.</span>
-<span class="l-Scalar-Plain">default_locale</span><span class="p-Indicator">:</span> <span class="s">&quot;en&quot;</span> <span class="c1"># blog sidebar language set, only include: English(en) and Chinese (cn)</span></code></pre></div>
-
-<p><strong>Part4</strong>, Blogroll info, only <em>name</em> tags can shown on the page.</p>
-
-<div class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="l-Scalar-Plain">Blogroll</span><span class="p-Indicator">:</span>
-      <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Freshman</span>
-        <span class="l-Scalar-Plain">href</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://yulijia.net/freshman</span>
-        <span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Another Jekyll blog theme</span>
-      <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">author&#39;s website</span>
-        <span class="l-Scalar-Plain">href</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://yulijia.net/</span>
-        <span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Lijia Yu&#39;s website</span></code></pre></div>
-
-<p><strong>Part5</strong>, Build settings</p>
-
-<div class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="l-Scalar-Plain">markdown</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">kramdown</span>
-<span class="l-Scalar-Plain">highlighter</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">pygments</span> <span class="c1"># highlight</span>
-<span class="l-Scalar-Plain">paginate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">5</span>  <span class="c1"># how many post can seen in the main page</span></code></pre></div>
-
-<p>=====</p>
-
-<ul style="list-style-type:none;"> 
-<li id="[1]"> [1], you can set those info at <strong>Part3</strong> or just delete the <q>aboutme.html</q> at <q>sidebar.html</q> in <code>_include</code> folder. </li>
-</ul>
-
-<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;col-sm-2&quot;</span><span class="nt">&gt;</span>
-  <span class="c">&lt;!--\{\% include Aboutme.html \%\}--&gt;</span>
-  \{\% include Copyright_Notice.html \%\}
-  \{\% include Recent_Posts.html \%\}
-  \{\% include Categories.html \%\}
-  \{\% include Tags.html \%\}
-  \{\% include Blogroll.html \%\}
-  \{\% include Archives.html \%\}
-<span class="nt">&lt;/div&gt;</span></code></pre></div>
-
-
-    </article> <hr />
-    
-    
-  
-    <header class="post-header">
-      <h1 class="post-title">
-        <a class="post-link" href="/articles/howto/2014/12/19/freshman21-structure.html">Theme structure</a>
-      </h1>
-      <p class="post-meta">
-      Posted in
-      
-      <a href="/categories/#articles">articles</a>&nbsp;
-      
-      <a href="/categories/#howto">howto</a>&nbsp;
-      
-      
-      and tagged
-      
-      <a href="/tags/#structure" title="structure">structure </a>
-      
-      
-      on Dec 19, 2014
-      </p>
-    </header>
-
-    <article class="post-content">
-      <h2 id="the-structure-of-freshman21-theme">1.The structure of freshman21 theme</h2>
-
-<p>You can see the simplest way of adding a page is just to add an HTML ( or markdown ) file in the root directory with a suitable name for the page you want to create. For example, aahome.md is the homepage link, about.md is the about page.</p>
-
-<p>All sidebar boxes html files are in the <code>_include</code> directory, their name begin with upper case. You can chose which sidebar boxes appears in the main page on the <q>sidebar.html</q> in the <code>_includes</code> directory.</p>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">.
-├── aahome.md                  <span class="c"># home page link at navigation bar</span>
-├── about.md                   <span class="c"># about link at navigation bar</span>
-├── archives.md                <span class="c"># archives link at navigation bar</span>
-├── categories.md              <span class="c"># categories link at navigation bar </span>
-├── _config.yml
-├── css
-│   └── main.scss
-├── guestbook.md               <span class="c"># guest book like at navigation bar</span>
-├── images
-│   └── favicon.ico            <span class="c"># here is your website favicon</span>
-├── _includes               
-│   ├── Aboutme.html           <span class="c"># right column sidebar content</span>
-│   ├── Archives.html          <span class="c"># right column sidebar content</span>
-│   ├── Blogroll.html          <span class="c"># right column sidebar content</span>
-│   ├── Categories.html        <span class="c"># right column sidebar content</span>
-│   ├── comments.html
-│   ├── Copyright_Notice.html  <span class="c"># right column sidebar content</span>
-│   ├── footer.html
-│   ├── header.html
-│   ├── head.html
-│   ├── page_pagination.html
-│   ├── post_pagination.html
-│   ├── Recent_Posts.html      <span class="c"># right column sidebar content</span>
-│   ├── sidebar.html           <span class="c"># you can set you own sidebar content in here</span>
-│   └── Tags.html              <span class="c"># right column sidebar content</span>
-├── index.html
-├── _layouts
-│   ├── default.html
-│   ├── page.html
-│   └── post.html
-├── LICENSE
-├── _posts
-│   ├── 2011-07-22-hello-world.md
-│   ├── 2013-10-10-milu.md
-│   ├── 2013-12-25-I-am-a-reindeer.md
-│   ├── 2014-12-13-simple-post.md
-│   └── 2014-12-18-how-to-install.md
-├── README.md
-├── _sass
-│   ├── _base.scss
-│   ├── _layout.scss
-│   └── _syntax-highlighting.scss
-├── tags.md                    <span class="c"># tags at main navigation bar  </span>
-└── zfeed.xml                  <span class="c"># RSS at main navigation bar</span></code></pre></div>
-
-<h2 id="structure-with-named-folders-containing-index-html-files">2.Structure with Named folders containing index HTML files</h2>
-
-<p>There is nothing wrong with the above method, however some people like to keep their URLs free from things like filename extensions. To achieve clean URLs for pages using Jekyll, you simply need to create a folder for each top-level page you want, and then place an index.html file in each page’s folder. You can find the more detail at <a href="http://jekyllrb.com/docs/pages/" title="Creating pages">Jekyll documentation</a>. Here is my own blog structure with page-folders to contain each pages.</p>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">.
-├── _backup
-│   ├── en.tar.gz
-│   └── style.css
-├── categories                              <span class="c"># =&gt; http://yulijia.net/en/categories/ </span>
-│   └── index.md
-├── _config.yml
-├── css
-│   └── main.scss
-├── feed                                    <span class="c"># =&gt; http://yulijia.net/en/feed/index.xml</span>
-│   └── index.xml
-├── guestbook                               <span class="c"># =&gt; http://yulijia.net/en/guestbook/</span>
-│   └── index.md
-├── home.md
-├── _includes
-│   ├── Aboutme.html
-│   ├── Archives.html
-│   ├── Blogroll.html
-│   ├── Categories.html
-│   ├── comments.html
-│   ├── Copyright_Notice.html
-│   ├── footer.html
-│   ├── header.html
-│   ├── head.html
-│   ├── page_pagination.html
-│   ├── post_pagination.html
-│   ├── Recent_Posts.html
-│   ├── sidebar.html
-│   └── Tags.html
-├── index.html
-├── _layouts
-│   ├── default.html
-│   ├── page.html
-│   └── post.html
-├── _posts
-│   ├── 2011-07-22-hello-world.md
-│   ├── 2011-08-06-how-to-calculate-word-frequencies-with-r.md
-│   ├── 2011-08-18-should-draco-be-effective-against-virtually-all-viruses.md
-│   ├── 2011-10-21-why-viruses-produce-long-dsrna-but-not-endogenous-ones.md
-│   ├── 2012-03-22-100-things-bioinformatics-students-should-do-before-graduating.md
-│   ├── 2012-10-08-a-new-site.md
-│   ├── 2012-10-09-github-pages.md
-│   ├── 2012-10-22-a-conference-of-Genomics-and-Epigenomics.md
-│   ├── 2012-10-23-CSHL-Asia-interesting-talks-on-genomics-and-epigenomics.md
-│   └── 2013-01-30-how-to-get-RefSeq-gene-annotations-from-UCSCdatabase.md
-├── README.md
-├── _sass
-│   ├── _base.scss
-│   ├── _layout.scss
-│   └── _syntax-highlighting.scss
-└── tags
-    └── index.md</code></pre></div>
-
-<h2 id="how-to-change-the-highlight-style">3. How to change the highlight style?</h2>
-
-<p>This theme’s default highlighter is pygments.</p>
-
-<p>To change the highlight style, you should install <strong>pygments</strong>, and generate the css style which you wanted with code</p>
-
-<p><code>pygmentize -S default -f html &gt; freshman/_sass/_syntax-highlighting.scss</code></p>
-
-<p>Please make sure, add <code>.highlight {</code> at the head  and <code>}</code> at the end of file <q>_syntax-highlighting.scss</q>.</p>
-
-<p>See more,</p>
+<h1 id="neo4j">neo4j实现</h1>
+<p>这个问题可以全程使用neo4j实现，不过方便起见，还是用了python做胶水。</p>
 
 <ol>
-  <li><a href="http://pygments.org/languages/">Pygments Supported languages</a></li>
-  <li><a href="http://stackoverflow.com/questions/9652490/do-i-need-to-generate-a-css-file-from-pygments-for-my-jekyll-blog-to-enable-col">Pygments online deme</a></li>
+  <li>首先，根据输入数据构造交易图谱，得到一个neo4j的数据库。</li>
+  <li>第二步，使用neo4j的查询语言Cypher进行封闭子图查询。</li>
+  <li>最后判断重复结果，输出。</li>
 </ol>
+
+<p>构造图的过程中要注意的问题就是不能重复创建节点。Cypher中得merge/create unique语法其实不是特别方便，两者的语义都不是我想要实现的“创建关系r(x<sub>1</sub>, x<sub>2</sub>)及节点x<sub>1</sub>,x<sub>2</sub>，如果x<sub>1</sub>/x<sub>2</sub>存在则不重复创建”，只好分别对x<sub>1</sub>，x<sub>2</sub>和r进行merge操作。</p>
+
+<p>构造的代码如下，商家定义为<code>Dealer</code>类，交易关系命名为<code>s2</code>，函数的输入<code>connection</code>为一个本地的neo4j数据库连接；输入文件格式如前述，第一列和第三列为卖方和买房的id。</p>
+
+<pre><code>def create_graph(inpath, connection):
+
+    with codecs.open(inpath, encoding='utf-8') as f:
+        cursor = connection.cursor()
+        for line in f:
+            entries = line.split('\t')
+            a, b = entries[0].strip(), entries[2].strip()
+            cursor.execute("MERGE (x:Dealer {id:{0}}) "
+                           "MERGE (y:Dealer {id:{1}}) "
+                           "MERGE (x) -[:s2]-&gt; (y)", a, b)
+            connection.commit()
+</code></pre>
+
+<p>最终输出的时候要判断找到的子图是不是重复的，由于起点不同，所以查询结果可能有重复。在这里我定义了一个闭合子图类，定义了它的哈希方法和判断相等的方法。还有一个需要注意的地方是，设定一个节点做起始节点，将找到的两个子图结果拼接起来仍是一个合法的结果，例如找到两个结果<code>a--b--a</code>和<code>a--c--a</code>，拼接起来的结果<code>a--b--a--c--a</code>仍是一个合法的图查询结果，但是不是我们想要的，所以还需要过滤掉这种倒8字型的子图。这个<code>Circle</code>类的代码如下。</p>
+
+<pre><code>class Circle(object):
+
+    def __init__(self, nodes):
+
+        self.valid = True
+        if nodes.count(nodes[0]) &gt; 2: self.valid = False
+        self.nodes = nodes[1:]
+
+    def __hash__(self):
+
+        return (frozenset(self.nodes).__hash__(), len(self.nodes)).__hash__()
+
+    def __eq__(self, other):
+
+        return self.__hash__() == other.__hash__() if isinstance(other, Circle) else False
+
+    def toString(self):
+
+        return '-&gt;'.join(self.nodes)
+</code></pre>
+
+<p>查询并将结果写入文件：</p>
+
+<pre><code>def search4circle(outpath, connection):
+
+    cursor = connection.cursor()
+    circles = []
+    with codecs.open(outpath, 'w', 'utf-8') as fo:
+        for p in cursor.execute("START n=node(*) "
+                                "MATCH p=n-[:s2*2..10]-&gt;n "
+                                "RETURN nodes(p)"):
+            circles.append(map(lambda x: x.get('id'), p[0]))
+        fo.write('\n'.join(map(lambda x: x.toString(),
+                               filter(lambda x: x.valid,
+                                      set(map(lambda x: Circle(x), circles))))))
+    connection.commit()
+</code></pre>
+
+<p>我指定的子图边的数量是2-10个，交易系统更复杂、闭环长度可能更长的时候应该适当增加上界。我的数据只是toy级别的，几万条交易数据而已，跑下来不到一分钟，不算很短了。具体原因我没有深究，我猜测是查询之前建立索引比较耽误工夫，因为不同边长度的结果几乎是一起出来的。如果是建索引比较花时间，那就不太会影响线上使用的速度。</p>
+
+<p>总体感觉上，Cypher作为查询语言不算难用，相较于SPARQL，更类似SQL。性能上，neo4j是跑在jvm上的，应该优化不算深，也有不少人诟病neo4j的速度，不过可能是我的数据量小，性能瓶颈不是很明显，至少不比Jena之类的框架差。</p>
+
+<p>一段时间内应该不会做太多知识图谱相关的工作了，所以之前更深入研究graphdb的计划可能就要放慢节奏了，更多地会在个人兴趣项目上对相关内容进行一些尝试。</p>
 
     </article> <hr />
     
@@ -399,35 +206,47 @@
   
     <header class="post-header">
       <h1 class="post-title">
-        <a class="post-link" href="/articles/2014/12/18/how-to-install.html">How to install this theme</a>
+        <a class="post-link" href="/reading/2015/03/27/reading-201503.html">2015.03读书笔记</a>
       </h1>
       <p class="post-meta">
       Posted in
       
-      <a href="/categories/#articles">articles</a>&nbsp;
+      <a href="/categories/#reading">reading</a>&nbsp;
       
       
       and tagged
       
-      <a href="/tags/#sample-post" title="sample-post">sample-post </a>
+      <a href="/tags/#reading" title="reading">reading </a>
       
       
-      on Dec 18, 2014
+      on Mar 27, 2015
       </p>
     </header>
 
     <article class="post-content">
-      <h2 id="how-to-install-freshman-theme">How to install Freshman theme?</h2>
+      <p>本月读书完成度不高（抽出的时间也不多），只有三本。</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="lineno">1</span> <span class="c"># please make sure you have already installed git tools and ruby tools(gem)</span>
-<span class="lineno">2</span> <span class="nv">$ </span>gem install sass
-<span class="lineno">3</span> <span class="nv">$ </span>gem install jekyll
-<span class="lineno">4</span> <span class="nv">$ </span>git clone https://github.com/yulijia/freshman21.git</code></pre></div>
+<h1 id="httpbookdoubancomsubject26297606"><a href="http://book.douban.com/subject/26297606/">从0到1</a></h1>
+<p>四星</p>
 
-<p>Then, change the folder name to you own github page name, forexample</p>
+<p>基本没什么鸡汤，内容虽然不是很新鲜，却也比较贴地气。算是名不虚行了。
+吐槽一下本书所属的“奇点系列”，彼得·蒂尔本人对库兹韦尔评价不算高，虽然不知道这个系列其他书如何，但是把这本书收到如此系列真是有点儿讽刺。（顺便想下“奇”读什么音，搜狗和百度都认为读qi，我觉得读ji可能更准确，英文对应不是singularity么。。。）</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>mv freshman thisisyouname.github.io</code></pre></div>
+<h1 id="httpbookdoubancomsubject1017143"><a href="http://book.douban.com/subject/1017143/">不能承受的生命之轻</a></h1>
+<p>三星半</p>
 
+<p>使人生有分量的东西到底是什么？米兰昆德拉小说的奇怪之处在于他总是在叙述过程中跳出来，试图把一个道理娓娓道来。这既让我失去了阅读的快感，也没法细想提出的问题。人和人之间的爱情，或者关系，其起始究竟是不是一种偶然，还是无论如何都会有一个归处？</p>
+
+<p>从这本书想到这个问题显得很奇怪：自我意识的起源究竟是一个随机的bug，还是有更深层次的原因？如果是前者，人工智能搞不好真的能实现，作为相关从业者倒是有点儿惶恐了。</p>
+
+<h1 id="httpbookdoubancomsubject11525217"><a href="http://book.douban.com/subject/11525217/">银河帝国4：基地前奏</a></h1>
+<p>三星</p>
+
+<p>跟一切系列小说一样，第四本就是用来起承转合介绍背景铺垫剧情的。基地4是第一本前传，讲心理史学发明之前谢顿的故事，更像是历险记，不科幻也没什么太多想法。</p>
+
+<p>本书中描绘的谢顿有血有肉，和前几部中的主人公有些相似的性格和特性。我总觉得这样的人是不可能总结出来心理史学的，心理史学的创造者应该是一个彻头彻尾的理性主义者，本书中的谢顿却很难算作一个，即使是年轻时期，他也并未表现出来理性主义的特质，很难想象他可以转变成基地1中的角色。我不知道阿西莫夫的科学训练如何，我猜想并不足够。当然用现代科学的标准苛责那个年代的人有些过分，基地系列（至少是前面三部）对人类整体运行的社会性思考还是很深刻的。</p>
+
+<p>不过我更中意海伯利安或者银河系搭车客指南系列。</p>
 
     </article> <hr />
     
@@ -435,173 +254,180 @@
   
     <header class="post-header">
       <h1 class="post-title">
-        <a class="post-link" href="/articles/2014/12/13/simple-post.html">Sample Post</a>
+        <a class="post-link" href="/reading/2015/02/28/reading-201502.html">2015.02读书笔记</a>
       </h1>
       <p class="post-meta">
       Posted in
       
-      <a href="/categories/#articles">articles</a>&nbsp;
+      <a href="/categories/#reading">reading</a>&nbsp;
       
       
       and tagged
       
-      <a href="/tags/#sample-post" title="sample-post">sample-post </a>
+      <a href="/tags/#reading" title="reading">reading </a>
       
       
-      on Dec 13, 2014
+      on Feb 28, 2015
       </p>
     </header>
 
     <article class="post-content">
-      <p>This is a sample post.</p>
+      <p>这个月读书不多，基本都是在交通工具上读完的，四本书是《太阳照常升起》，《通灵的按摩师》，《2001太空漫游》和《风起陇西》。</p>
 
-<p>Below is just about everything you’ll need to style in the theme. Check the source code to see the many embedded elements within paragraphs.</p>
+<h1 id="httpbookdoubancomsubject10522958"><a href="http://book.douban.com/subject/10522958/">太阳照常升起</a></h1>
+<p>三星</p>
 
-<h1 id="heading-1">Heading 1</h1>
+<p>前段时间读了《永别了，武器》，算是最近一段时间读过最好的小说了，所以又找了一本海明威的书来读。这本海明威的成名作更符合其“垮掉的一代”的标签，看来海明威还真是一个复杂的人啊。这本书描绘了一些迷惘青年的生活，描写得很透，虽然内容本身不太深刻。不是我最近喜欢的类型吧。</p>
 
-<h2 id="heading-2">Heading 2</h2>
+<h1 id="httpbookdoubancomsubject23012691"><a href="http://book.douban.com/subject/23012691/">通灵的按摩师</a></h1>
+<p>四星</p>
 
-<h3 id="heading-3">Heading 3</h3>
+<p>第一次读奈保尔的书，对（那个阶段的）印度人的刻画深入而准确，又不失趣味。</p>
 
-<h4 id="heading-4">Heading 4</h4>
+<h1 id="httpbookdoubancomsubject2340609"><a href="http://book.douban.com/subject/2340609/">2001太空漫游</a></h1>
+<p>三星</p>
 
-<h2 id="body-text">Body text</h2>
+<p>也许是对这个久负盛名的系列期望太高，读完倒觉得比较一般，平稳的叙述里没什么惊喜。在那个时代对未来的想象竟很准确，可仅此而已，缺乏《海伯利安》里那种更深入、宏大、本质的想象力。有机会可以找电影来看看，不知道这种情节比较匮乏的书怎么拍电影。。。</p>
 
-<p><strong>This is strong</strong>.</p>
+<h1 id="httpbookdoubancomsubject6025373"><a href="http://book.douban.com/subject/6025373/">风起陇西</a></h1>
+<p>三星半</p>
 
-<p>This is figure</p>
+<p>祥瑞御免。多看在限免，所以就重新读了一遍，好像很少读亲王的书两遍以上。这次感觉没有第一次读那样想要拍案而起，不过亲王对三国历史的了解和想象的确很让人佩服，人物刻画上比三国机密系列稍逊一筹。</p>
 
-<p><img src="https://i.imgur.com/Mdc4szJl.jpg" alt="Elaphurus davidianus" title="Père David's deer" /></p>
+    </article> <hr />
+    
+    
+  
+    <header class="post-header">
+      <h1 class="post-title">
+        <a class="post-link" href="/nlp/2014/12/20/CRF-word-segmentation.html">基于CRF的中文分词解码器(Java实现)</a>
+      </h1>
+      <p class="post-meta">
+      Posted in
+      
+      <a href="/categories/#nlp">nlp</a>&nbsp;
+      
+      
+      and tagged
+      
+      <a href="/tags/#CRF" title="CRF">CRF </a>, 
+      
+      <a href="/tags/#分词" title="分词">分词 </a>, 
+      
+      <a href="/tags/#Java" title="Java">Java </a>
+      
+      
+      on Dec 20, 2014
+      </p>
+    </header>
 
-<p><em>This is emphasized</em>.</p>
+    <article class="post-content">
+      <p>本文主要介绍使用CRF(<a href="http://en.wikipedia.org/wiki/Conditional_random_field">Conditional Random Field</a>，条件随机场)来进行中文分词的工作，着重介绍解码器的实现。</p>
 
-<p>53 = 125. Water is H<sub>2</sub>O.</p>
+<h1 id="crf">什么是CRF</h1>
+<p>CRF是现在比较流行的序列标注算法，其他的序列标注算法例如HMM(Hidden Makov Model，隐马)/MEMM(Maximum-entropy Markov model，最大熵)，三者主要的差别在于HMM考虑转移概率(transition probability)和生成概率(emission probability)，二者分布的计算是独立的；MEMM和HMM类似，但是其转移概率是基于输出的条件概率；CRF更为复杂，其特征抽取自全部篇幅(具体由特征函数确定)，标注的考量更全局化。具体训练上，HMM比较容易，使用最大似然在语料中进行统计即可。
+<br />上面三种方法都可以进行序列标注，序列标注在NLP里有很多应用，比如中文分词，词性标注，命名实体分析，chunk（分块？不知道这个中文一般是怎么翻译的）等等。CRF一个比较显著的优点在于对于未登录词的识别效果不错，这里可能有一个比较容易混淆的点，未登录词指的是训练语料中没出现的词，并不是所谓的“新词”（比如网络流行语）。假如新词的构词法和训练语料不太相似，我认为识别的效果不会太理想。（新词的识别有一些其他的方法）</p>
 
-<p>The New York Times <cite>(That’s a citation)</cite>.</p>
+<h1 id="section">工具与模型训练</h1>
+<p>本文介绍的方法使用到的工具方法如下，
+<br />语料：北大人民日报语料，6个月，其中前5个月用于训练，第6个月做测试
+<br />工具：crf++用于训练模型，java写了一个解码和分词的程序，python脚本用于把语料组织成crf++的格式。</p>
 
-<p><u>Underline</u>.</p>
+<p>crf++网上有不少教程，其本身也比较容易上手，就不多介绍了。
+<br />crf++训练过程中的内存管理其实是有一些问题的，我感觉应该是词语统计过程中有一部分内存没有释放，c++基础也不太好，没去深究代码，在一台内存大点的机器上跑就好了。还可以考虑的一个trick是训练时候使用 <code>-f</code> 参数，过滤掉频率过小的特征。
+<br />训练结果为一个模型文件，模型包含5个部分：
+<br />1. 文件头，包含模型信息，比如maxid是模型中特征的数量
+<br />2. 标签集合，在分词这个任务里我使用了5个tag，B/E/M<sub>1</sub>/M<sub>2</sub>/S
+<br />3. 特征模板，最后一个如果是B表示使用Bigram特征
+<br />4. 特征索引，为一个整数和一个特征。比如 <code>345 U00:严</code> 的意思是特征 <code>U00:严</code> 的索引开始于345，即<code>F(B|U00:严)=feature_values[345]</code>，同理，2中的下一个标签E在这个特征上对应的值的索引是346
+<br />5. 特征对应的值，为一个浮点数。通过上面的索引来查找。</p>
 
-<p><del>HTML and CSS are our tools</del>.</p>
+<p>一个可能的训练模型看起来是这样的,</p>
 
-<h2 id="blockquotes">Blockquotes</h2>
+<pre><code>version: 100
+&lt;br&gt;cost-factor: 1
+&lt;br&gt;maxid: 6512970
+xsize: 1
 
-<blockquote>
-  <p>Justification:
-This species is listed as Extinct in the Wild, as all populations are still under captive management. The captive population in China has increased in recent years, and the possibility remains that free-ranging populations can be established some time in the near future. When that happens, its Red List status will need to be reassessed.</p>
-</blockquote>
+B
+E
+M1
+M2
+S
 
-<blockquote>
-  <p>I follow up the quest. Despite of day and night and death and hell.</p>
-  <center> -- Idylls of the King, Tennyson </center>
-</blockquote>
+U00:%x[-2,0]
+U01:%x[-1,0]
+U02:%x[0,0]
+U03:%x[1,0]
+U04:%x[2,0]
+U05:%x[-2,0]/%x[-1,0]/%x[0,0]
+U06:%x[-1,0]/%x[0,0]/%x[1,0]
+U07:%x[0,0]/%x[1,0]/%x[2,0]
+U08:%x[-1,0]/%x[0,0]
+U09:%x[0,0]/%x[1,0]
+B
 
-<h2 id="list-types">List Types</h2>
+0 B
+25 U00:_B-1
+30 U00:_B-2
+35 U00:±
+40 U00:·
+45 U00:×
+50 U00:—
+55 U00:‘
+60 U00:’
+65 U00:“
+70 U00:”
+75 U00:…
+80 U00:‰
+85 U00:℃
+...
 
-<h3 id="ordered-lists">Ordered Lists</h3>
+0.0001855083586074
+-0.0000550467674851
+-0.0000523310422437
+-0.0000072055131253
+-0.0000045287760644
+0.0001191120946419
+-0.0000618634324638
+-0.0000507848415768
+-0.0000074019745383
+-0.0000044408072127
+0.0001244910548052
+-0.0002948948488240
+-0.0002653346476889
+-0.0000384288559099
+-0.0000228130525827
+0.0006214713986071
+-0.0000890289555236
+...
+</code></pre>
 
-<ol>
-  <li>Item one
-    <ol>
-      <li>sub item one</li>
-      <li>sub item two</li>
-      <li>sub item three</li>
-    </ol>
-  </li>
-  <li>Item two</li>
-</ol>
+<p>根据输入和特征模板怎么生成特征我就不细说了，看一下就明白了。B_1表示句首的前一位。</p>
 
-<h3 id="unordered-lists">Unordered Lists</h3>
+<h1 id="section-1">解码</h1>
+<p>因为公司的系统是用Java开发的，所以为了分词专门用Java写了一个分词器，主要就是模型的解码。</p>
 
-<ul>
-  <li>Item one</li>
-  <li>Item two</li>
-  <li>Item three</li>
-</ul>
+<p>解码首先要把模型读入内存中，这其实是一个比较tricky的问题，网上也没有太多的介绍。存储要能实现o(1)的查找速度，这样才能保证分词的效率。对于序列标注问题来说，使用比较多的方法是用DATrie来实现，但是我考虑了一下，我要查找的内容(形如<code>U00:丛</code>)比较规则，除了前面特征模板的索引以外(U00)，剩下的部分比较短（最长三个字），如果构建Trie树，其形状也是很扁平的。所以影响效率更主要的因素还是哈希函数的效率。最终我没使用DATrie(懒得写了。。。)，而是设计了一种查找结构，首先对特征模板的索引进行区分(只有10个特征模板)，针对每一个特征模板，使用一个哈希表来储存其中的字符和其对应的整数索引。每一个哈希表大概有10w个键值对，对性能的提高可以直接根据键值对的数量来优化哈希函数。</p>
 
-<h2 id="tables">Tables</h2>
+<p>模型读入以后就比较容易了。对一个输入句子进行分词包含以下步骤，
+<br />1. 句子字符进行预处理。数字的处理，标点的处理，半角全角的转换。
+<br />2. 根据特征模板对每一个字符生成一系列特征。
+<br />3. 初始化一个m*n的矩阵，m为句子中字符的数量，n为tag的数量。
+<br />4. 根据特征函数计算矩阵中每一个node的得分/概率。
+<br />5. 如果有bigram feature，计算输出tag的序列，可以使用viterbi算法，很简单。
+<br />6. 输出tag序列，根据序列提供分词结果。</p>
 
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">Header1</th>
-      <th style="text-align: center">Header2</th>
-      <th style="text-align: right">Header3</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">cell1</td>
-      <td style="text-align: center">cell2</td>
-      <td style="text-align: right">cell3</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">cell4</td>
-      <td style="text-align: center">cell5</td>
-      <td style="text-align: right">cell6</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">cell7</td>
-      <td style="text-align: center">cell8</td>
-      <td style="text-align: right">cell9</td>
-    </tr>
-  </tbody>
-</table>
+<p>然后给公司里的编辑们写一个GUI。。。不得不说，Java写出来的GUI蛮丑的。</p>
 
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: center">Kingdom</th>
-      <th style="text-align: center">Phylum</th>
-      <th style="text-align: center">Class</th>
-      <th style="text-align: center">Order</th>
-      <th style="text-align: center">Family</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center">ANIMALIA</td>
-      <td style="text-align: center">CHORDATA</td>
-      <td style="text-align: center">MAMMALIA</td>
-      <td style="text-align: center">CETARTIODACTYLA</td>
-      <td style="text-align: center">CERVIDAE</td>
-    </tr>
-  </tbody>
-</table>
+<h1 id="section-2">评估</h1>
+<p>分词速度比较一般，查找的部分还有可以优化的地方。
+<br />现在的分词速度大概是40字符/ms左右，一般情况下够用了。
+<br /><em>（不够用的时候，开两个进程，反正内存消耗也不大，还不够？开五个。。。）</em>
+<br />使用人民日报第6个月的语料进行测试，
+<br />字标注的准确率97.57%；词语的准确率和召回都是97.16%左右。看起来还不错。</p>
 
-<h2 id="code-snippets">Code Snippets</h2>
-
-<p>Syntax highlighting via Pygments</p>
-
-<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nf">#container</span> <span class="p">{</span>
-  <span class="k">float</span><span class="o">:</span> <span class="k">left</span><span class="p">;</span>
-  <span class="k">margin</span><span class="o">:</span> <span class="m">0</span> <span class="m">-240px</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span>
-  <span class="k">width</span><span class="o">:</span> <span class="m">100%</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
-
-<div class="highlight"><pre><code class="language-r" data-lang="r">├── my<span class="o">-</span>theme
-│   ├── assets
-│   │   ├── css
-│   │   ├── img
-│   │   └── js
-│   └── page.html</code></pre></div>
-
-<h4 id="highlight-with-line-number">highlight with line number.</h4>
-
-<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="lineno">1</span> <span class="k">def</span> <span class="nf">foo</span>
-<span class="lineno">2</span>   <span class="nb">puts</span> <span class="s1">&#39;foo&#39;</span>
-<span class="lineno">3</span> <span class="k">end</span></code></pre></div>
-
-<h2 id="latex"><script type="math/tex">\LaTeX</script></h2>
-
-<p>you can use latex with <q>double $$ </q></p>
-
-<script type="math/tex; mode=display">e^{i\pi}+1=0</script>
-
-<h2 id="q-tag">&lt;q&gt; tag</h2>
-
-<p>here is a &lt;q&gt; q tag &lt;/q&gt;</p>
-
-<p>here is a <q> q tag </q></p>
+<p>好久没写Java了写起来看着。。。好长。</p>
 
     </article> <hr />
     
@@ -614,8 +440,6 @@ This species is listed as Extinct in the Wild, as all populations are still unde
   </div>
   <section class="pager">
   
-  
-  <li class="next"><a href="/page2/" title="Older">Older &rarr;</a></li>
   
 </section>
 
