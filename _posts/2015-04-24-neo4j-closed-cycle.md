@@ -10,7 +10,7 @@ tags: [neo4j, graphdb]
 
 刚好最近在看neo4j，想试一下graph analysis，数据提供者也觉得分析一下不同公司之间交易闭环也蛮有趣的。试了一下，用neo4j和python的组合来完成这事儿还是非常容易的。
 
-#问题定义与分析
+##问题定义与分析
 数据是不同商家(我称为dealer)之间的交易(称为transaction)，经过数据清洗和简化，每条数据的格式可以认为是这样：
 
     dealerA, productA, dealerB, amount
@@ -19,7 +19,7 @@ tags: [neo4j, graphdb]
 
 可以把这个问题抽象成一个有向图，dealer是图的节点，transaction是图的边，从卖家指向买家，权重为交易额。要解决的问题即是，给定一个图G(V,E)，找出所有的闭合子图。
 
-#neo4j实现
+##neo4j实现
 这个问题可以全程使用neo4j实现，不过方便起见，还是用了python做胶水。
 
 1. 首先，根据输入数据构造交易图谱，得到一个neo4j的数据库。

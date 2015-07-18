@@ -54,8 +54,8 @@ locales:
 ### your Blogroll info, only name can shown on the page.
 
 Blogroll:
-    - name: Freshman21
-      href: http://yulijia.net/freshman21
+    - name: Eastdog
+      href: http://eastdog.github.io
       title: Another Jekyll blog theme
     - name: author's website
       href: http://yulijia.net/
