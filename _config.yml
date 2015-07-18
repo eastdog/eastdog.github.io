@@ -12,8 +12,8 @@ baseurl: "" # the subpath of your site, e.g. /blog
 ### Personal info and site tools info:
 github_username:  eastdog
 disqus_shortname: eastdog
-favicon:     "/images/favicon.ico"
-aboutme: Hi, this is Lijia Yu. I made the Freshman21 theme. Please enjoy it. # these are shown on aboutme-sidebar.
+favicon:     "/images/icon.jpg"
+aboutme: Blablabla # these are shown on aboutme-sidebar.
 aboutme_photo: https://i.imgur.com/Mdc4szJl.jpg # your photo.
 
 

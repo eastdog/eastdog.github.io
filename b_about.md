@@ -23,6 +23,9 @@ permalink: /about/
 
 有事儿可以[邮件联系](yvtungchow@gmail.com)
 
+哦对了，我的理想是做一个写科幻小说的厨师。
+
+---
 
 In case there is a non-Chinese speaker, there is a serious introduction:
 
