@@ -5,7 +5,7 @@ author: Victor Zhou
 email: yudongzhou@yeah.net
 description: "Eastdog's personal blog" # You can edit this line in _config.yml. It will appear in your document head meta and in your feed.xml site description
 keywords: "nlp, tech"
-baseurl: "/" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 #url: "http://yulijia.net/freshman21" # the base hostname & protocol for your site
 
 
