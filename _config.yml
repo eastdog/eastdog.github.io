@@ -4,7 +4,7 @@ tagline: Eastdog is not dog
 author: Victor Zhou
 email: yudongzhou@yeah.net
 description: "Eastdog's personal blog" # You can edit this line in _config.yml. It will appear in your document head meta and in your feed.xml site description
-keywords: "nlp, tech"
+keywords: "nlp, 自然语言处理"
 baseurl: "" # the subpath of your site, e.g. /blog
 #url: "http://yulijia.net/freshman21" # the base hostname & protocol for your site
 
@@ -64,5 +64,9 @@ Blogroll:
 
 ### Build settings
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge
+kramdown:
+        input: GFM
+        syntax_highlighter: rouge
+gems: [jekyll-paginate]
 paginate: 5
