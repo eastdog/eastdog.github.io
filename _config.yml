@@ -64,7 +64,7 @@ Blogroll:
 
 ### Build settings
 markdown: kramdown
-highlighter: rouge
+#highlighter: pygments
 kramdown:
         input: GFM
         syntax_highlighter: rouge
