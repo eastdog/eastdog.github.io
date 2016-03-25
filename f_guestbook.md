@@ -4,7 +4,7 @@ title: Guestbook
 comments: yes
 permalink: /guestbook/
 ---
-## Hi, welcome to leave a message here.:)
+## 如果能刷出来就请留言吧
 
-> To follow the path, look to the master, follow the master, walk with the master, see through the master, become the master.
+> 不过不保证有人看
 
