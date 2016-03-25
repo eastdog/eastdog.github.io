@@ -7,19 +7,32 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width initial-scale=1">
 
+<meta property="og:title" content="基于CRF的中文分词解码器(Java实现)">
 <title>基于CRF的中文分词解码器(Java实现)</title>
-<meta name="description" content="本文主要介绍使用CRF(Conditional Random Field，条件随机场)来进行中文分词的工作，着重介绍解码器的实现。什么是CRFCRF是现在比较流行的序列标注算法，其他的序列标注算法例如HMM(Hidden Makov Model，隐马)/MEMM(Maximum-entropy Markov mo...">
-<meta name="keywords" content="nlp, tech">
+<meta property="og:description" content="本文主要介绍使用CRF(Conditional Random Field，条件随机场)来进行中文分词的工作，着重介绍解码器的实现。什么是CRFCRF是现在比较流行的序列标注算法，其他的序列标注算法例如HMM(Hidden Makov Model，隐马)/MEMM(Maximum-entropy Markov mo...">
+<meta property="og:url" content="/nlp/2014/12/20/CRF-word-segmentation.html">
+<meta property="og:site_name" content="Eastdog">
+<meta property="og:locale" content="">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta name="twitter:creator" content="@">
+<meta name="twitter:title" content="基于CRF的中文分词解码器(Java实现)">
+<meta name="twitter:description" content="本文主要介绍使用CRF(Conditional Random Field，条件随机场)来进行中文分词的工作，着重介绍解码器的实现。什么是CRFCRF是现在比较流行的序列标注算法，其他的序列标注算法例如HMM(Hidden Makov Model，隐马)/MEMM(Maximum-entropy Markov mo...">
+<meta name="twitter:url" content="/nlp/2014/12/20/CRF-word-segmentation.html">
 
-<link rel="icon" href="/images/favicon.ico">
+<meta name="keywords" content="nlp, 自然语言处理">
+
+<link rel="icon" href="/images/icon.jpg">
 <link rel="stylesheet" href="/css/main.css">
 <link rel="canonical" href="/nlp/2014/12/20/CRF-word-segmentation.html">
-<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/zfeed.xml" />
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/feed.xml" />
 
 <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 
 </head>
+
+
 
 
 <body>
@@ -75,6 +88,8 @@
         
         
         
+        
+        
       </div>
     </nav>
 
@@ -87,14 +102,15 @@
 
   <div class="page-content">
     <div class="wrapper">
-      <div class="post">
+      <div class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title">基于CRF的中文分词解码器(Java实现)</h1>
+    <h1 itemprop="name" class="post-title">基于CRF的中文分词解码器(Java实现)</h1>
+    <meta itemprop="keywords" content="CRF,分词,Java" />
     <p class="post-meta">
     Posted in
     
-    <a href="/categories/#nlp">nlp</a>&nbsp;
+    <a href="/categories/#NLP">NLP</a>
      
     
     and tagged
@@ -106,34 +122,38 @@
     <a href="/tags/#Java" title="Java">Java </a>
     
     
+    <time itemprop="datePublished" datetime="2014-12-20">
     on Dec 20, 2014
+    </time>
     </p>
   </header>
 
-  <article class="post-content">
+  <article class="post-content" itemprop="articleBody">
     <p>本文主要介绍使用CRF(<a href="http://en.wikipedia.org/wiki/Conditional_random_field">Conditional Random Field</a>，条件随机场)来进行中文分词的工作，着重介绍解码器的实现。</p>
 
-<h1 id="crf">什么是CRF</h1>
+<h2 id="crf">什么是CRF</h2>
+
 <p>CRF是现在比较流行的序列标注算法，其他的序列标注算法例如HMM(Hidden Makov Model，隐马)/MEMM(Maximum-entropy Markov model，最大熵)，三者主要的差别在于HMM考虑转移概率(transition probability)和生成概率(emission probability)，二者分布的计算是独立的；MEMM和HMM类似，但是其转移概率是基于输出的条件概率；CRF更为复杂，其特征抽取自全部篇幅(具体由特征函数确定)，标注的考量更全局化。具体训练上，HMM比较容易，使用最大似然在语料中进行统计即可。
 <br />上面三种方法都可以进行序列标注，序列标注在NLP里有很多应用，比如中文分词，词性标注，命名实体分析，chunk（分块？不知道这个中文一般是怎么翻译的）等等。CRF一个比较显著的优点在于对于未登录词的识别效果不错，这里可能有一个比较容易混淆的点，未登录词指的是训练语料中没出现的词，并不是所谓的“新词”（比如网络流行语）。假如新词的构词法和训练语料不太相似，我认为识别的效果不会太理想。（新词的识别有一些其他的方法）</p>
 
-<h1 id="section">工具与模型训练</h1>
+<h2 id="section">工具与模型训练</h2>
+
 <p>本文介绍的方法使用到的工具方法如下，
 <br />语料：北大人民日报语料，6个月，其中前5个月用于训练，第6个月做测试
 <br />工具：crf++用于训练模型，java写了一个解码和分词的程序，python脚本用于把语料组织成crf++的格式。</p>
 
 <p>crf++网上有不少教程，其本身也比较容易上手，就不多介绍了。
-<br />crf++训练过程中的内存管理其实是有一些问题的，我感觉应该是词语统计过程中有一部分内存没有释放，c++基础也不太好，没去深究代码，在一台内存大点的机器上跑就好了。还可以考虑的一个trick是训练时候使用 <code>-f</code> 参数，过滤掉频率过小的特征。
+<br />crf++训练过程中的内存管理其实是有一些问题的，我感觉应该是词语统计过程中有一部分内存没有释放，c++基础也不太好，没去深究代码，在一台内存大点的机器上跑就好了。还可以考虑的一个trick是训练时候使用 <code class="highlighter-rouge">-f</code> 参数，过滤掉频率过小的特征。
 <br />训练结果为一个模型文件，模型包含5个部分：
 <br />1. 文件头，包含模型信息，比如maxid是模型中特征的数量
 <br />2. 标签集合，在分词这个任务里我使用了5个tag，B/E/M<sub>1</sub>/M<sub>2</sub>/S
 <br />3. 特征模板，最后一个如果是B表示使用Bigram特征
-<br />4. 特征索引，为一个整数和一个特征。比如 <code>345 U00:严</code> 的意思是特征 <code>U00:严</code> 的索引开始于345，即<code>F(B|U00:严)=feature_values[345]</code>，同理，2中的下一个标签E在这个特征上对应的值的索引是346
+<br />4. 特征索引，为一个整数和一个特征。比如 <code class="highlighter-rouge">345 U00:严</code> 的意思是特征 <code class="highlighter-rouge">U00:严</code> 的索引开始于345，即<code class="highlighter-rouge">F(B|U00:严)=feature_values[345]</code>，同理，2中的下一个标签E在这个特征上对应的值的索引是346
 <br />5. 特征对应的值，为一个浮点数。通过上面的索引来查找。</p>
 
 <p>一个可能的训练模型看起来是这样的,</p>
 
-<pre><code>version: 100
+<div class="highlighter-rouge"><pre class="highlight"><code>version: 100
 &lt;br&gt;cost-factor: 1
 &lt;br&gt;maxid: 6512970
 xsize: 1
@@ -191,13 +211,15 @@ B
 -0.0000890289555236
 ...
 </code></pre>
+</div>
 
 <p>根据输入和特征模板怎么生成特征我就不细说了，看一下就明白了。B_1表示句首的前一位。</p>
 
-<h1 id="section-1">解码</h1>
+<h2 id="section-1">解码</h2>
+
 <p>因为公司的系统是用Java开发的，所以为了分词专门用Java写了一个分词器，主要就是模型的解码。</p>
 
-<p>解码首先要把模型读入内存中，这其实是一个比较tricky的问题，网上也没有太多的介绍。存储要能实现o(1)的查找速度，这样才能保证分词的效率。对于序列标注问题来说，使用比较多的方法是用DATrie来实现，但是我考虑了一下，我要查找的内容(形如<code>U00:丛</code>)比较规则，除了前面特征模板的索引以外(U00)，剩下的部分比较短（最长三个字），如果构建Trie树，其形状也是很扁平的。所以影响效率更主要的因素还是哈希函数的效率。最终我没使用DATrie(懒得写了。。。)，而是设计了一种查找结构，首先对特征模板的索引进行区分(只有10个特征模板)，针对每一个特征模板，使用一个哈希表来储存其中的字符和其对应的整数索引。每一个哈希表大概有10w个键值对，对性能的提高可以直接根据键值对的数量来优化哈希函数。</p>
+<p>解码首先要把模型读入内存中，这其实是一个比较tricky的问题，网上也没有太多的介绍。存储要能实现o(1)的查找速度，这样才能保证分词的效率。对于序列标注问题来说，使用比较多的方法是用DATrie来实现，但是我考虑了一下，我要查找的内容(形如<code class="highlighter-rouge">U00:丛</code>)比较规则，除了前面特征模板的索引以外(U00)，剩下的部分比较短（最长三个字），如果构建Trie树，其形状也是很扁平的。所以影响效率更主要的因素还是哈希函数的效率。最终我没使用DATrie(懒得写了。。。)，而是设计了一种查找结构，首先对特征模板的索引进行区分(只有10个特征模板)，针对每一个特征模板，使用一个哈希表来储存其中的字符和其对应的整数索引。每一个哈希表大概有10w个键值对，对性能的提高可以直接根据键值对的数量来优化哈希函数。</p>
 
 <p>模型读入以后就比较容易了。对一个输入句子进行分词包含以下步骤，
 <br />1. 句子字符进行预处理。数字的处理，标点的处理，半角全角的转换。
@@ -209,7 +231,8 @@ B
 
 <p>然后给公司里的编辑们写一个GUI。。。不得不说，Java写出来的GUI蛮丑的。</p>
 
-<h1 id="section-2">评估</h1>
+<h2 id="section-2">评估</h2>
+
 <p>分词速度比较一般，查找的部分还有可以优化的地方。
 <br />现在的分词速度大概是40字符/ms左右，一般情况下够用了。
 <br /><em>（不够用的时候，开两个进程，反正内存消耗也不大，还不够？开五个。。。）</em>
@@ -229,7 +252,7 @@ B
     <li class="disabled"><a>&larr; Older</a></li>
     
     
-    <li class="next"><a href="/reading/2015/02/28/reading-201502.html" title="2015.02读书笔记">Newer &rarr;</a></li>
+    <li class="next"><a href="/tech/2015/04/24/neo4j-closed-cycle.html" title="使用neo4j进行交易闭环分析">Newer &rarr;</a></li>
     
   </ul>
 </section>

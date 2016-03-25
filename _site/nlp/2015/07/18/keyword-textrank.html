@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width initial-scale=1">
+
+<meta property="og:title" content="Textrank提取关键词的一些总结">
+<title>Textrank提取关键词的一些总结</title>
+<meta property="og:description" content="最近一段时间做的主要工作是从文章中提取关键词，文章基本上是一些公司的介绍，量不算大，大概几万个。这件事儿本身实现起来不算很困难，所以大家也有些各行其是，缺乏一个能达成共识的方法（当然，这个task也比较难以进行评价），不少人也就得过且过，有一个差不多能用的算法就行了。我了解到的方法，基本的如tf-idf，text...">
+<meta property="og:url" content="/nlp/2015/07/18/keyword-textrank.html">
+<meta property="og:site_name" content="Eastdog">
+<meta property="og:locale" content="">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta name="twitter:creator" content="@">
+<meta name="twitter:title" content="Textrank提取关键词的一些总结">
+<meta name="twitter:description" content="最近一段时间做的主要工作是从文章中提取关键词，文章基本上是一些公司的介绍，量不算大，大概几万个。这件事儿本身实现起来不算很困难，所以大家也有些各行其是，缺乏一个能达成共识的方法（当然，这个task也比较难以进行评价），不少人也就得过且过，有一个差不多能用的算法就行了。我了解到的方法，基本的如tf-idf，text...">
+<meta name="twitter:url" content="/nlp/2015/07/18/keyword-textrank.html">
+
+<meta name="keywords" content="nlp, 自然语言处理">
+
+<link rel="icon" href="/images/icon.jpg">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="canonical" href="/nlp/2015/07/18/keyword-textrank.html">
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/feed.xml" />
+
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+</head>
+
+
+
+
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+
+  <div class="wrapper">
+
+    <h1 class="site-title"><a href="/">Eastdog</a></h1>
+    <h3 class="site-meta">Eastdog is not dog</h3>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+        
+        <a class="page-link" href="/">Home</a>
+        
+        
+        
+        <a class="page-link" href="/about/">About</a>
+        
+        
+        
+        <a class="page-link" href="/archives/">Archives</a>
+        
+        
+        
+        <a class="page-link" href="/categories/">Categories</a>
+        
+        
+        
+        <a class="page-link" href="/tags/">Tags</a>
+        
+        
+        
+        <a class="page-link" href="/guestbook/">Guestbook</a>
+        
+        
+        
+        <a class="page-link" href="/feed.xml">Subscribe</a>
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+  
+
+  <div class="page-content">
+    <div class="wrapper">
+      <div class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 itemprop="name" class="post-title">Textrank提取关键词的一些总结</h1>
+    <meta itemprop="keywords" content="ie,keywords,textrank" />
+    <p class="post-meta">
+    Posted in
+    
+    <a href="/categories/#nlp">nlp</a>
+     
+    
+    and tagged
+    
+    <a href="/tags/#ie" title="ie">ie </a>, 
+    
+    <a href="/tags/#keywords" title="keywords">keywords </a>, 
+    
+    <a href="/tags/#textrank" title="textrank">textrank </a>
+    
+    
+    <time itemprop="datePublished" datetime="2015-07-18">
+    on Jul 18, 2015
+    </time>
+    </p>
+  </header>
+
+  <article class="post-content" itemprop="articleBody">
+    <p>最近一段时间做的主要工作是从文章中提取关键词，文章基本上是一些公司的介绍，量不算大，大概几万个。这件事儿本身实现起来不算很困难，所以大家也有些各行其是，缺乏一个能达成共识的方法（当然，这个task也比较难以进行评价），不少人也就得过且过，有一个差不多能用的算法就行了。我了解到的方法，基本的如tf-idf，textrank；看到某公司招聘的jd里写了“mi/ig”，我猜是mutual information和information gain，算是比较自然而然的idea；看了几篇文章使用global info来提取关键词（不要求提取的关键词一定在文章中出现，可以是更general的concept），大概是这些思路。</p>
+
+<p>尝试了一些不同的方法，过于依赖统计的方法我排除了，毕竟我要分析的语料规模可能不是那么大，而且来源于互联网，规范化程度也比较低，纯统计的方法需要太多预处理的工作。最后上线的算法以textrank为基本核心，辅以使用global info的关键词联想算法，后者使用了LSI和比较流行的word2vec。今天主要写一些textrank相关的思考。</p>
+
+<h2 id="textrank">Textrank</h2>
+<p><a href="http://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf">Textrank</a>其实是一个蛮简单的算法，假设我们用textrank来提取关键词，用最简单的话来说，就是给定一篇文章，过滤特定词性的词，指定一个定长的window size，以词为节点，同一个window内的两个词(节点)之间构建一条边(一般建模为双向，边无权)，每篇文章构成了一个图，图中节点数量为文章的词汇表的词汇数。在这个图上运行<a href="https://en.wikipedia.org/wiki/PageRank">pagerank</a>算法(不知道pagerank的点上面的链接，看懂了再回来)，over。</p>
+
+<p>这篇文章发在04年的emnlp上，思路简单，充满了简洁之美。
+作者的原文中，结果最佳的window size是2，收敛系数是0.0001.</p>
+
+<h2 id="section">坑</h2>
+<p>单纯使用Textrank来提取关键词的话，有下面两个问题：</p>
+
+<ol>
+  <li>节点的起始权重都是1，缺少先验信息的支持，文本长度不够长（比如所有的词的词频都是1）的时候，实际没什么产出。</li>
+  <li>文章开始与结尾位置的词有更小的概率被提取，window size越大，文章首尾的单词权重越位置敏感。</li>
+</ol>
+
+<p>问题1比较好理解，先验信息缺乏导致算法对输入质量的要求比较高，文章的长度最好比较长（词汇丰富，词频差异也会相应增大），短文本上效果不好。</p>
+
+<p>其实仔细想一下这个算法的idea，在不考虑先验信息和边权重的情况下，文章中tf高的词起始权重比较高，能接到不同词的词有更多的边（同时边没有权重），基本上相当于捏合了基于term frequency和mutual information的关键词提取方法。</p>
+
+<p>问题2我也是一段时间才发现的，是我自己的想法，还没有完全认证。（stackoverflow上真是很少有人关注算法的问题哈）举例来说，如果window size设为2，那么文章的第一个词<script type="math/tex">w_1</script>和第二个词<script type="math/tex">w_2</script>构建了双向边，<script type="math/tex">w_2</script>和<script type="math/tex">w_3</script>构建了一个双向边，以此类推。比较<script type="math/tex">w_2</script>和<script type="math/tex">w_1</script>可以发现，<script type="math/tex">w_2</script>比<script type="math/tex">w_1</script>多了一次构建边的机会，也就是<script type="math/tex">w_2</script>多了一个incoming的权重，而这个区别仅仅是由于词所在的位置造成的。在文章长度较长的情况下，这个的影响比较小，但是文章长度短的情况下，文章首尾的词有更小的可能性被选为关键词。</p>
+
+<h2 id="section-1">改进尝试</h2>
+
+<p>我的一个改进尝试就是在初始化图的时候，引入先验权重，先验权重是从全部文章中统计出来的，使用类似tf-idf方式。同时为了让本领域（互联网）关注的词有更高的可能性被提取，也应用领域词表。</p>
+
+<p>整个先验知识分成两部分，一部分是统计得出的，为词和其对应的权重，权重的值域为[0.2, 1);另一部分是词表得来的，权重设为0.2.也就是在初始化文章对应的图的时候，对每一个词先查看先验知识，更新的权重为原始权重(1)加上先验知识中对应的权重。在Textrank迭代之前，所有节点权重的值域即为[0, 2).</p>
+
+<h2 id="section-2">其他</h2>
+
+<p>Textrank的实现比较简单，我参考了<a href="https://github.com/fxsjy/jieba">jieba</a>中Textrank的实现，并对其做了一些改进。</p>
+
+  </article>
+  <hr />
+</div>
+
+
+<section class="pager">
+  <ul>
+    
+    <li class="previous"><a href="/reading/2015/06/30/reading-2015h1.html" title="2015上半年读书总结">&larr; Older</a></li>
+    
+    
+    <li class="next"><a href="/reading/2016/01/18/reading-2015h2.html" title="2015下半年读书总结">Newer &rarr;</a></li>
+    
+  </ul>
+</section>
+
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+
+  var disqus_developer = 1;
+
+var disqus_shortname ='eastdog';
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+    </div>
+  </div>
+  <section class="pager">
+  
+  
+</section>
+
+
+
+  
+
+  <footer class="site-footer">
+
+  <p>Copyright &copy; <a href="/">Eastdog</a></p>
+  <p>Powered by <a href="https://github.com/jekyll/jekyll">Jekyll</a> 
+  on 
+  
+  <a href="https://github.com/">Github</a>
+  
+  | Theme <a href="https://github.com/yulijia/freshman21/">Freshman21</a> Design by <a href="http://yulijia.net">Lijia Yu</a>  
+
+</footer>
+
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width initial-scale=1">
+
+<meta property="og:title" content="从Tensorflow到吐槽Google">
+<title>从Tensorflow到吐槽Google</title>
+<meta property="og:description" content="AlphaGo赢了李世石，抛开阴谋论不讲，其实挺让我意外的，本以为怎么着也得第二次才能赢一个世界顶尖棋手吧。不管怎么样当下来看，和语言问题相比棋类问题还是良定义的，所以赢人类只是时间和精力的问题。各种媒体又刷一遍深度学习统治世界，让我觉得很不舒服，人类反正是从来没能从历史里学到任何东西吧，再来一个XX寒冬，我可不...">
+<meta property="og:url" content="/babble/2016/03/20/tensorflow-babble.html">
+<meta property="og:site_name" content="Eastdog">
+<meta property="og:locale" content="">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta name="twitter:creator" content="@">
+<meta name="twitter:title" content="从Tensorflow到吐槽Google">
+<meta name="twitter:description" content="AlphaGo赢了李世石，抛开阴谋论不讲，其实挺让我意外的，本以为怎么着也得第二次才能赢一个世界顶尖棋手吧。不管怎么样当下来看，和语言问题相比棋类问题还是良定义的，所以赢人类只是时间和精力的问题。各种媒体又刷一遍深度学习统治世界，让我觉得很不舒服，人类反正是从来没能从历史里学到任何东西吧，再来一个XX寒冬，我可不...">
+<meta name="twitter:url" content="/babble/2016/03/20/tensorflow-babble.html">
+
+<meta name="keywords" content="nlp, 自然语言处理">
+
+<link rel="icon" href="/images/icon.jpg">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="canonical" href="/babble/2016/03/20/tensorflow-babble.html">
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/feed.xml" />
+
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+</head>
+
+
+
+
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+
+  <div class="wrapper">
+
+    <h1 class="site-title"><a href="/">Eastdog</a></h1>
+    <h3 class="site-meta">Eastdog is not dog</h3>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+        
+        <a class="page-link" href="/">Home</a>
+        
+        
+        
+        <a class="page-link" href="/about/">About</a>
+        
+        
+        
+        <a class="page-link" href="/archives/">Archives</a>
+        
+        
+        
+        <a class="page-link" href="/categories/">Categories</a>
+        
+        
+        
+        <a class="page-link" href="/tags/">Tags</a>
+        
+        
+        
+        <a class="page-link" href="/guestbook/">Guestbook</a>
+        
+        
+        
+        <a class="page-link" href="/feed.xml">Subscribe</a>
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+  
+
+  <div class="page-content">
+    <div class="wrapper">
+      <div class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 itemprop="name" class="post-title">从Tensorflow到吐槽Google</h1>
+    <meta itemprop="keywords" content="nn" />
+    <p class="post-meta">
+    Posted in
+    
+    <a href="/categories/#babble">babble</a>
+     
+    
+    and tagged
+    
+    <a href="/tags/#nn" title="nn">nn </a>
+    
+    
+    <time itemprop="datePublished" datetime="2016-03-20">
+    on Mar 20, 2016
+    </time>
+    </p>
+  </header>
+
+  <article class="post-content" itemprop="articleBody">
+    <p>AlphaGo赢了李世石，抛开阴谋论不讲，其实挺让我意外的，本以为怎么着也得第二次才能赢一个世界顶尖棋手吧。不管怎么样当下来看，和语言问题相比棋类问题还是良定义的，所以赢人类只是时间和精力的问题。各种媒体又刷一遍深度学习统治世界，让我觉得很不舒服，人类反正是从来没能从历史里学到任何东西吧，再来一个XX寒冬，我可不想这么快就考虑失业问题。（不过放眼全世界大家经济根本就是在比谁更渣渣所以像我这么高科技的从业者都失业的话经济岂不是一丝一毫增长点都没有了哈哈哈哈）</p>
+
+<p>扯远了。我对神经网络的了解一直不深，经历了svm大法好–boosting大法好的历程，我对新工具一般都只停留在初级的好奇心（其实是懒）。不过现在DL这么火，工具据说可以很好用，所以就来试试咯。中文关于Tensorflow的tutorial很少（英文的其实也不多），其他开源工具要么是语言不喜欢，要么文档比Tensorflow还短（其实我比较可以理解给MXNet写文档的man hour能创造那么多生产力为毛要浪费这个时间。。。），思前想后（其实也就十分钟）还是决定先试试Tensorflow/skflow。用下来感觉还是不错，不过总是要吐槽的嘛。（心情好的话回头我是不是会写一篇tutorial呢&lt;—-请注意这大概率是一个flag）</p>
+
+<ol>
+  <li>Centos 6 安装基本上搞不定的，至少我搞了一下午也不行。Tensorflow 0.7需要glibc&gt;=2.17，Centos 6最高支持到2.15，2.17试了好久也搞不定。stackoverflow上有两三个个相关问题，有一个方法疑似可行，可是实在是太麻烦太麻烦了。。。github上tensorflow下面有关于这个的issue，因为没啥好的解决方法也已经close掉了。所以如果你在Centos或者其他Linux发行版下安装Tensorflow遇到<code class="highlighter-rouge">/lib/libc.so.6: version 'GLIBC_2.17' not found</code>或者类似的问题，强烈建议你直接升级操作系统。</li>
+  <li>skflow是有bug的，github上的几个example没有几个能跑起来的，好歹你们是Google的人喂提交代码的时候用点儿心好不好啊。如果你遇到错误提示是什么<code class="highlighter-rouge">list of tensors when single tensor expected</code>或者哪个list<code class="highlighter-rouge">out of range</code>，检查一下是不是rnn的一个sample方法，丫有一个方法原来返回一个list后来改成list最后一个元素了，可是用到这个方法的地方没改代码 :( 是谁告诉我你们大公司review代码都炒鸡认真的来着。</li>
+</ol>
+
+<p>其余的想起来再吐吧。</p>
+
+<p>最后我们再来黑一发Google。最近大公司都在开源自己的工具，这是好事儿，一方面我们有了工具用了，另一方面我们可以看看这些大公司的工具有多难用（其实我觉得原因很简单，因为他们只开源了难用的bug多的工具，人家也不傻）。也许现在Google真的是刷刷题就能进了，写出这种代码的程序员是不是应该吃一壶啊。。。又风闻Google在卖BDI，关注BDI也好几年了（所以我的姿势水平是不是要超出很多科技媒体一大截啊），三年前看踹那个大狗的视频的时候还是很震撼的。很多媒体就喜欢捧Google臭脚（国内尤甚），BMI发视频的时候就在传Google多牛逼多牛逼，把BMI踹走的时候就只报道一句“BMI的机器人技术没法盈利所以Google准备将其售出。”三观不和就不和呗，管理层矛盾就矛盾呗，Google作为一家商业公司这么做天经地义，媒体朋友么，跟我说，Google是一家 商-业-公-司，你们家的情怀多少钱一斤。</p>
+
+<p>‘Don’t be evil’真的不是随口一说当slogan么，这句话都不能算是良定义的。</p>
+
+  </article>
+  <hr />
+</div>
+
+
+<section class="pager">
+  <ul>
+    
+    <li class="previous"><a href="/reading/2016/01/18/reading-2015h2.html" title="2015下半年读书总结">&larr; Older</a></li>
+    
+    
+    <li class="disabled"><a>Newer &rarr;</a>
+    
+  </ul>
+</section>
+
+<div id="disqus_thread"></div>
+
+<script type="text/javascript">
+
+  var disqus_developer = 1;
+
+var disqus_shortname ='eastdog';
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+    </div>
+  </div>
+  <section class="pager">
+  
+  
+</section>
+
+
+
+  
+
+  <footer class="site-footer">
+
+  <p>Copyright &copy; <a href="/">Eastdog</a></p>
+  <p>Powered by <a href="https://github.com/jekyll/jekyll">Jekyll</a> 
+  on 
+  
+  <a href="https://github.com/">Github</a>
+  
+  | Theme <a href="https://github.com/yulijia/freshman21/">Freshman21</a> Design by <a href="http://yulijia.net">Lijia Yu</a>  
+
+</footer>
+
+
+</div>
+
+</body>
+
+</html>

@@ -197,6 +197,7 @@ pre {
  */
 table {
   padding: 0;
+  margin-bottom: 5px;
   border-collapse: collapse;
   font-size: 14px; }
 
@@ -342,7 +343,7 @@ cite {
     font-weight: bold; }
 
 .page-heading {
-  font-size: 20px; }
+  font-size: 18px; }
 
 .post-meta {
   font-size: 14px;
@@ -357,9 +358,12 @@ cite {
  */
 .post-header {
   margin-bottom: 15px; }
+  .post-header time {
+    margin-left: 0px;
+    font-style: normal; }
 
 .post-title {
-  font-size: 38px;
+  font-size: 34px;
   letter-spacing: -1px;
   line-height: 1; }
   @media screen and (max-width: 800px) {
@@ -387,25 +391,25 @@ cite {
 .post-content p {
   padding: 3px 0; }
 .post-content h1 {
-  font-size: 38px;
+  font-size: 24px;
   line-height: 1em; }
   @media screen and (max-width: 800px) {
     .post-content h1 {
       font-size: 36px; } }
 .post-content h2 {
-  font-size: 32px;
+  font-size: 22px;
   line-height: 1em; }
   @media screen and (max-width: 800px) {
     .post-content h2 {
       font-size: 28px; } }
 .post-content h3 {
-  font-size: 26px;
+  font-size: 20px;
   line-height: 1em; }
   @media screen and (max-width: 800px) {
     .post-content h3 {
       font-size: 22px; } }
 .post-content h4 {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1em; }
   @media screen and (max-width: 800px) {
     .post-content h4 {

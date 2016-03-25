@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width initial-scale=1">
+
+<meta property="og:title" content="Eastdog">
+<title>Eastdog</title>
+<meta property="og:description" content="Eastdog's personal blog">
+<meta property="og:url" content="/page2/">
+<meta property="og:site_name" content="Eastdog">
+<meta property="og:locale" content="">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta name="twitter:creator" content="@">
+<meta name="twitter:title" content="Eastdog">
+<meta name="twitter:description" content="Eastdog's personal blog">
+<meta name="twitter:url" content="/page2/">
+
+<meta name="keywords" content="nlp, 自然语言处理">
+
+<link rel="icon" href="/images/icon.jpg">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="canonical" href="/page2/">
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/feed.xml" />
+
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+</head>
+
+
+
+
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+
+  <div class="wrapper">
+
+    <h1 class="site-title"><a href="/">Eastdog</a></h1>
+    <h3 class="site-meta">Eastdog is not dog</h3>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+        
+        <a class="page-link" href="/">Home</a>
+        
+        
+        
+        <a class="page-link" href="/about/">About</a>
+        
+        
+        
+        <a class="page-link" href="/archives/">Archives</a>
+        
+        
+        
+        <a class="page-link" href="/categories/">Categories</a>
+        
+        
+        
+        <a class="page-link" href="/tags/">Tags</a>
+        
+        
+        
+        <a class="page-link" href="/guestbook/">Guestbook</a>
+        
+        
+        
+        <a class="page-link" href="/feed.xml">Subscribe</a>
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+  
+
+  <div class="page-content">
+    <div class="wrapper">
+      <div class="home">
+  <div class="post">
+    
+    
+  
+    <header class="post-header">
+      <h1 class="post-title">
+        <a class="post-link" href="/tech/2014/12/20/CRF-word-segmentation.html">基于CRF的中文分词解码器(Java实现)</a>
+      </h1>
+      <p class="post-meta">
+      Posted in
+      
+      <a href="/categories/#tech">tech</a>&nbsp;
+      
+      
+      and tagged
+      
+      <a href="/tags/#CRF" title="CRF">CRF </a>, 
+      
+      <a href="/tags/#分词" title="分词">分词 </a>, 
+      
+      <a href="/tags/#Java" title="Java">Java </a>
+      
+      
+      on Dec 20, 2014
+      </p>
+    </header>
+
+    <article class="post-content">
+      <p>本文主要介绍使用CRF(<a href="http://en.wikipedia.org/wiki/Conditional_random_field">Conditional Random Field</a>，条件随机场)来进行中文分词的工作，着重介绍解码器的实现。</p>
+
+<h1 id="crf">什么是CRF</h1>
+
+<p>CRF是现在比较流行的序列标注算法，其他的序列标注算法例如HMM(Hidden Makov Model，隐马)/MEMM(Maximum-entropy Markov model，最大熵)，三者主要的差别在于HMM考虑转移概率(transition probability)和生成概率(emission probability)，二者分布的计算是独立的；MEMM和HMM类似，但是其转移概率是基于输出的条件概率；CRF更为复杂，其特征抽取自全部篇幅(具体由特征函数确定)，标注的考量更全局化。具体训练上，HMM比较容易，使用最大似然在语料中进行统计即可。
+<br />上面三种方法都可以进行序列标注，序列标注在NLP里有很多应用，比如中文分词，词性标注，命名实体分析，chunk（分块？不知道这个中文一般是怎么翻译的）等等。CRF一个比较显著的优点在于对于未登录词的识别效果不错，这里可能有一个比较容易混淆的点，未登录词指的是训练语料中没出现的词，并不是所谓的“新词”（比如网络流行语）。假如新词的构词法和训练语料不太相似，我认为识别的效果不会太理想。（新词的识别有一些其他的方法）</p>
+
+<h1 id="section">工具与模型训练</h1>
+
+<p>本文介绍的方法使用到的工具方法如下，
+<br />语料：北大人民日报语料，6个月，其中前5个月用于训练，第6个月做测试
+<br />工具：crf++用于训练模型，java写了一个解码和分词的程序，python脚本用于把语料组织成crf++的格式。</p>
+
+<p>crf++网上有不少教程，其本身也比较容易上手，就不多介绍了。
+<br />crf++训练过程中的内存管理其实是有一些问题的，我感觉应该是词语统计过程中有一部分内存没有释放，c++基础也不太好，没去深究代码，在一台内存大点的机器上跑就好了。还可以考虑的一个trick是训练时候使用 <code class="highlighter-rouge">-f</code> 参数，过滤掉频率过小的特征。
+<br />训练结果为一个模型文件，模型包含5个部分：
+<br />1. 文件头，包含模型信息，比如maxid是模型中特征的数量
+<br />2. 标签集合，在分词这个任务里我使用了5个tag，B/E/M<sub>1</sub>/M<sub>2</sub>/S
+<br />3. 特征模板，最后一个如果是B表示使用Bigram特征
+<br />4. 特征索引，为一个整数和一个特征。比如 <code class="highlighter-rouge">345 U00:严</code> 的意思是特征 <code class="highlighter-rouge">U00:严</code> 的索引开始于345，即<code class="highlighter-rouge">F(B|U00:严)=feature_values[345]</code>，同理，2中的下一个标签E在这个特征上对应的值的索引是346
+<br />5. 特征对应的值，为一个浮点数。通过上面的索引来查找。</p>
+
+<p>一个可能的训练模型看起来是这样的,</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>version: 100
+&lt;br&gt;cost-factor: 1
+&lt;br&gt;maxid: 6512970
+xsize: 1
+
+B
+E
+M1
+M2
+S
+
+U00:%x[-2,0]
+U01:%x[-1,0]
+U02:%x[0,0]
+U03:%x[1,0]
+U04:%x[2,0]
+U05:%x[-2,0]/%x[-1,0]/%x[0,0]
+U06:%x[-1,0]/%x[0,0]/%x[1,0]
+U07:%x[0,0]/%x[1,0]/%x[2,0]
+U08:%x[-1,0]/%x[0,0]
+U09:%x[0,0]/%x[1,0]
+B
+
+0 B
+25 U00:_B-1
+30 U00:_B-2
+35 U00:±
+40 U00:·
+45 U00:×
+50 U00:—
+55 U00:‘
+60 U00:’
+65 U00:“
+70 U00:”
+75 U00:…
+80 U00:‰
+85 U00:℃
+...
+
+0.0001855083586074
+-0.0000550467674851
+-0.0000523310422437
+-0.0000072055131253
+-0.0000045287760644
+0.0001191120946419
+-0.0000618634324638
+-0.0000507848415768
+-0.0000074019745383
+-0.0000044408072127
+0.0001244910548052
+-0.0002948948488240
+-0.0002653346476889
+-0.0000384288559099
+-0.0000228130525827
+0.0006214713986071
+-0.0000890289555236
+...
+</code></pre>
+</div>
+
+<p>根据输入和特征模板怎么生成特征我就不细说了，看一下就明白了。B_1表示句首的前一位。</p>
+
+<h1 id="section-1">解码</h1>
+
+<p>因为公司的系统是用Java开发的，所以为了分词专门用Java写了一个分词器，主要就是模型的解码。</p>
+
+<p>解码首先要把模型读入内存中，这其实是一个比较tricky的问题，网上也没有太多的介绍。存储要能实现o(1)的查找速度，这样才能保证分词的效率。对于序列标注问题来说，使用比较多的方法是用DATrie来实现，但是我考虑了一下，我要查找的内容(形如<code class="highlighter-rouge">U00:丛</code>)比较规则，除了前面特征模板的索引以外(U00)，剩下的部分比较短（最长三个字），如果构建Trie树，其形状也是很扁平的。所以影响效率更主要的因素还是哈希函数的效率。最终我没使用DATrie(懒得写了。。。)，而是设计了一种查找结构，首先对特征模板的索引进行区分(只有10个特征模板)，针对每一个特征模板，使用一个哈希表来储存其中的字符和其对应的整数索引。每一个哈希表大概有10w个键值对，对性能的提高可以直接根据键值对的数量来优化哈希函数。</p>
+
+<p>模型读入以后就比较容易了。对一个输入句子进行分词包含以下步骤，
+<br />1. 句子字符进行预处理。数字的处理，标点的处理，半角全角的转换。
+<br />2. 根据特征模板对每一个字符生成一系列特征。
+<br />3. 初始化一个m*n的矩阵，m为句子中字符的数量，n为tag的数量。
+<br />4. 根据特征函数计算矩阵中每一个node的得分/概率。
+<br />5. 如果有bigram feature，计算输出tag的序列，可以使用viterbi算法，很简单。
+<br />6. 输出tag序列，根据序列提供分词结果。</p>
+
+<p>然后给公司里的编辑们写一个GUI。。。不得不说，Java写出来的GUI蛮丑的。</p>
+
+<h1 id="section-2">评估</h1>
+
+<p>分词速度比较一般，查找的部分还有可以优化的地方。
+<br />现在的分词速度大概是40字符/ms左右，一般情况下够用了。
+<br /><em>（不够用的时候，开两个进程，反正内存消耗也不大，还不够？开五个。。。）</em>
+<br />使用人民日报第6个月的语料进行测试，
+<br />字标注的准确率97.57%；词语的准确率和召回都是97.16%左右。看起来还不错。</p>
+
+<p>好久没写Java了写起来看着。。。好长。</p>
+
+    </article> <hr />
+    
+    
+  
+  </div>
+</div>
+
+    </div>
+  </div>
+  <section class="pager">
+  
+  
+  <li class="previous"><a href="/" title="Newer">&larr; Newer</a></li>
+  
+  
+  
+</section>
+
+
+
+  
+
+  <footer class="site-footer">
+
+  <p>Copyright &copy; <a href="/">Eastdog</a></p>
+  <p>Powered by <a href="https://github.com/jekyll/jekyll">Jekyll</a> 
+  on 
+  
+  <a href="https://github.com/">Github</a>
+  
+  | Theme <a href="https://github.com/yulijia/freshman21/">Freshman21</a> Design by <a href="http://yulijia.net">Lijia Yu</a>  
+
+</footer>
+
+
+</div>
+
+</body>
+
+</html>

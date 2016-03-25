@@ -7,19 +7,32 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width initial-scale=1">
 
+<meta property="og:title" content="使用neo4j进行交易闭环分析">
 <title>使用neo4j进行交易闭环分析</title>
-<meta name="description" content="目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。">
-<meta name="keywords" content="nlp, tech">
+<meta property="og:description" content="目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。">
+<meta property="og:url" content="/database/2015/04/24/neo4j-closed-cycle.html">
+<meta property="og:site_name" content="Eastdog">
+<meta property="og:locale" content="">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@">
+<meta name="twitter:creator" content="@">
+<meta name="twitter:title" content="使用neo4j进行交易闭环分析">
+<meta name="twitter:description" content="目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。">
+<meta name="twitter:url" content="/database/2015/04/24/neo4j-closed-cycle.html">
 
-<link rel="icon" href="/images/favicon.ico">
+<meta name="keywords" content="nlp, 自然语言处理">
+
+<link rel="icon" href="/images/icon.jpg">
 <link rel="stylesheet" href="/css/main.css">
 <link rel="canonical" href="/database/2015/04/24/neo4j-closed-cycle.html">
-<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/zfeed.xml" />
+<link rel="alternate" type="application/atom+xml" title="Eastdog" href="/feed.xml" />
 
 <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 
 </head>
+
+
 
 
 <body>
@@ -75,6 +88,8 @@
         
         
         
+        
+        
       </div>
     </nav>
 
@@ -87,14 +102,15 @@
 
   <div class="page-content">
     <div class="wrapper">
-      <div class="post">
+      <div class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title">使用neo4j进行交易闭环分析</h1>
+    <h1 itemprop="name" class="post-title">使用neo4j进行交易闭环分析</h1>
+    <meta itemprop="keywords" content="neo4j,graphdb" />
     <p class="post-meta">
     Posted in
     
-    <a href="/categories/#database">database</a>&nbsp;
+    <a href="/categories/#database">database</a>
      
     
     and tagged
@@ -104,26 +120,29 @@
     <a href="/tags/#graphdb" title="graphdb">graphdb </a>
     
     
+    <time itemprop="datePublished" datetime="2015-04-24">
     on Apr 24, 2015
+    </time>
     </p>
   </header>
 
-  <article class="post-content">
+  <article class="post-content" itemprop="articleBody">
     <p>目前手头有一份一些公司的发票数据，反应了这些公司之间的交易情况。本来主要目的是做一些fraud analysis，看看能不能找出一些虚假/欺诈的交易，进而分析公司的账务情况。</p>
 
 <p>刚好最近在看neo4j，想试一下graph analysis，数据提供者也觉得分析一下不同公司之间交易闭环也蛮有趣的。试了一下，用neo4j和python的组合来完成这事儿还是非常容易的。</p>
 
-<h1 id="section">问题定义与分析</h1>
+<h2 id="section">问题定义与分析</h2>
 <p>数据是不同商家(我称为dealer)之间的交易(称为transaction)，经过数据清洗和简化，每条数据的格式可以认为是这样：</p>
 
-<pre><code>dealerA, productA, dealerB, amount
+<div class="highlighter-rouge"><pre class="highlight"><code>dealerA, productA, dealerB, amount
 </code></pre>
+</div>
 
 <p>表示dealerA将数额为amount的productA卖给了dealerB。数据集中每个dealer即可能是卖家，也可能是买家。要解决的问题是，给定一定量这样的数据，发现交易闭环，即从一个dealer出发，通过不同的交易和其他dealer，最后还有人将产品卖回给最开始的dealer。</p>
 
 <p>可以把这个问题抽象成一个有向图，dealer是图的节点，transaction是图的边，从卖家指向买家，权重为交易额。要解决的问题即是，给定一个图G(V,E)，找出所有的闭合子图。</p>
 
-<h1 id="neo4j">neo4j实现</h1>
+<h2 id="neo4j">neo4j实现</h2>
 <p>这个问题可以全程使用neo4j实现，不过方便起见，还是用了python做胶水。</p>
 
 <ol>
@@ -134,9 +153,9 @@
 
 <p>构造图的过程中要注意的问题就是不能重复创建节点。Cypher中得merge/create unique语法其实不是特别方便，两者的语义都不是我想要实现的“创建关系r(x<sub>1</sub>, x<sub>2</sub>)及节点x<sub>1</sub>,x<sub>2</sub>，如果x<sub>1</sub>/x<sub>2</sub>存在则不重复创建”，只好分别对x<sub>1</sub>，x<sub>2</sub>和r进行merge操作。</p>
 
-<p>构造的代码如下，商家定义为<code>Dealer</code>类，交易关系命名为<code>s2</code>，函数的输入<code>connection</code>为一个本地的neo4j数据库连接；输入文件格式如前述，第一列和第三列为卖方和买房的id。</p>
+<p>构造的代码如下，商家定义为<code class="highlighter-rouge">Dealer</code>类，交易关系命名为<code class="highlighter-rouge">s2</code>，函数的输入<code class="highlighter-rouge">connection</code>为一个本地的neo4j数据库连接；输入文件格式如前述，第一列和第三列为卖方和买房的id。</p>
 
-<pre><code>def create_graph(inpath, connection):
+<div class="highlighter-rouge"><pre class="highlight"><code>def create_graph(inpath, connection):
 
     with codecs.open(inpath, encoding='utf-8') as f:
         cursor = connection.cursor()
@@ -148,10 +167,11 @@
                            "MERGE (x) -[:s2]-&gt; (y)", a, b)
             connection.commit()
 </code></pre>
+</div>
 
-<p>最终输出的时候要判断找到的子图是不是重复的，由于起点不同，所以查询结果可能有重复。在这里我定义了一个闭合子图类，定义了它的哈希方法和判断相等的方法。还有一个需要注意的地方是，设定一个节点做起始节点，将找到的两个子图结果拼接起来仍是一个合法的结果，例如找到两个结果<code>a--b--a</code>和<code>a--c--a</code>，拼接起来的结果<code>a--b--a--c--a</code>仍是一个合法的图查询结果，但是不是我们想要的，所以还需要过滤掉这种倒8字型的子图。这个<code>Circle</code>类的代码如下。</p>
+<p>最终输出的时候要判断找到的子图是不是重复的，由于起点不同，所以查询结果可能有重复。在这里我定义了一个闭合子图类，定义了它的哈希方法和判断相等的方法。还有一个需要注意的地方是，设定一个节点做起始节点，将找到的两个子图结果拼接起来仍是一个合法的结果，例如找到两个结果<code class="highlighter-rouge">a--b--a</code>和<code class="highlighter-rouge">a--c--a</code>，拼接起来的结果<code class="highlighter-rouge">a--b--a--c--a</code>仍是一个合法的图查询结果，但是不是我们想要的，所以还需要过滤掉这种倒8字型的子图。这个<code class="highlighter-rouge">Circle</code>类的代码如下。</p>
 
-<pre><code>class Circle(object):
+<div class="highlighter-rouge"><pre class="highlight"><code>class Circle(object):
 
     def __init__(self, nodes):
 
@@ -171,10 +191,11 @@
 
         return '-&gt;'.join(self.nodes)
 </code></pre>
+</div>
 
 <p>查询并将结果写入文件：</p>
 
-<pre><code>def search4circle(outpath, connection):
+<div class="highlighter-rouge"><pre class="highlight"><code>def search4circle(outpath, connection):
 
     cursor = connection.cursor()
     circles = []
@@ -188,6 +209,7 @@
                                       set(map(lambda x: Circle(x), circles))))))
     connection.commit()
 </code></pre>
+</div>
 
 <p>我指定的子图边的数量是2-10个，交易系统更复杂、闭环长度可能更长的时候应该适当增加上界。我的数据只是toy级别的，几万条交易数据而已，跑下来不到一分钟，不算很短了。具体原因我没有深究，我猜测是查询之前建立索引比较耽误工夫，因为不同边长度的结果几乎是一起出来的。如果是建索引比较花时间，那就不太会影响线上使用的速度。</p>
 
@@ -203,10 +225,10 @@
 <section class="pager">
   <ul>
     
-    <li class="previous"><a href="/reading/2015/03/27/reading-201503.html" title="2015.03读书笔记">&larr; Older</a></li>
+    <li class="previous"><a href="/nlp/2014/12/20/CRF-word-segmentation.html" title="基于CRF的中文分词解码器(Java实现)">&larr; Older</a></li>
     
     
-    <li class="disabled"><a>Newer &rarr;</a>
+    <li class="next"><a href="/reading/2015/06/30/reading-2015h1.html" title="2015上半年读书总结">Newer &rarr;</a></li>
     
   </ul>
 </section>

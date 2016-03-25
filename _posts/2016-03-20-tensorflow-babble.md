@@ -2,13 +2,12 @@
 title: 从Tensorflow到吐槽Google
 layout: post
 category : babble
-tagline: babble
-tags: [nn, nlp]
+tags: [nn]
 ---
 
 AlphaGo赢了李世石，抛开阴谋论不讲，其实挺让我意外的，本以为怎么着也得第二次才能赢一个世界顶尖棋手吧。不管怎么样当下来看，和语言问题相比棋类问题还是良定义的，所以赢人类只是时间和精力的问题。各种媒体又刷一遍深度学习统治世界，让我觉得很不舒服，人类反正是从来没能从历史里学到任何东西吧，再来一个XX寒冬，我可不想这么快就考虑失业问题。（不过放眼全世界大家经济根本就是在比谁更渣渣所以像我这么高科技的从业者都失业的话经济岂不是一丝一毫增长点都没有了哈哈哈哈）
 
-扯远了。我对神经网络的了解一直不深，经历了svm大法好--boosting大法好的历程，我对新工具一般都只停留在初级的好奇心（其实是懒）。不过现在DL这么火，工具据说可以很好用，所以就来试试咯。中文关于Tensorflow的tutorial很少（英文的其实也不多），其他开源工具要么是语言不喜欢，要么文档比Tensorflow还短（其实我比较可以理解给MXNet写文档的man hour能创造那么多生产力为毛要浪费这个时间。。。），思前想后（其实也就十分钟）还是决定先试试Tensorflow/skflow。用下来感觉还是不错，不过总是要吐槽的嘛。（心情好的话回头我是不是会写一篇tutorial呢<----这绝对像一个flag）
+扯远了。我对神经网络的了解一直不深，经历了svm大法好--boosting大法好的历程，我对新工具一般都只停留在初级的好奇心（其实是懒）。不过现在DL这么火，工具据说可以很好用，所以就来试试咯。中文关于Tensorflow的tutorial很少（英文的其实也不多），其他开源工具要么是语言不喜欢，要么文档比Tensorflow还短（其实我比较可以理解给MXNet写文档的man hour能创造那么多生产力为毛要浪费这个时间。。。），思前想后（其实也就十分钟）还是决定先试试Tensorflow/skflow。用下来感觉还是不错，不过总是要吐槽的嘛。（心情好的话回头我是不是会写一篇tutorial呢<----请注意这大概率是一个flag）
 
 1. Centos 6 安装基本上搞不定的，至少我搞了一下午也不行。Tensorflow 0.7需要glibc>=2.17，Centos 6最高支持到2.15，2.17试了好久也搞不定。stackoverflow上有两三个个相关问题，有一个方法疑似可行，可是实在是太麻烦太麻烦了。。。github上tensorflow下面有关于这个的issue，因为没啥好的解决方法也已经close掉了。所以如果你在Centos或者其他Linux发行版下安装Tensorflow遇到`/lib/libc.so.6: version 'GLIBC_2.17' not found`或者类似的问题，强烈建议你直接升级操作系统。
 2. skflow是有bug的，github上的几个example没有几个能跑起来的，好歹你们是Google的人喂提交代码的时候用点儿心好不好啊。如果你遇到错误提示是什么`list of tensors when single tensor expected`或者哪个list`out of range`，检查一下是不是rnn的一个sample方法，丫有一个方法原来返回一个list后来改成list最后一个元素了，可是用到这个方法的地方没改代码 :( 是谁告诉我你们大公司review代码都炒鸡认真的来着。
